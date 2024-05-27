@@ -5,19 +5,15 @@ import { Stack } from 'expo-router'
 
 const LayoutScreen = () => {
   return (
-    <SafeAreaView>
       <Stack>
         <Stack.Screen
-        name='index'
+        name='(tabs)'
         options={{
+          headerShown: false
         }}
         />
-        <Stack.Screen
-        name='(tabs)'
-        options={{}}
-        />
       </Stack>
-    </SafeAreaView>
+      
   )
 }
 
