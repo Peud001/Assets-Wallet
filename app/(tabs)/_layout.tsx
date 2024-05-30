@@ -1,19 +1,20 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
-import { FontAwesome } from '@expo/vector-icons'
-import { StatusBar } from 'expo-status-bar'
+import { FontAwesome6 } from '@expo/vector-icons'
+import { Foundation } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const _layout = () => {
   return (
     <Tabs
     screenOptions={{
       tabBarShowLabel: false,
-      tabBarActiveTintColor : '#FFA001',
+      tabBarActiveTintColor : '#7D29F6',
       tabBarInactiveTintColor: '#CDCDE0',
       headerShown: false,
       tabBarStyle: {
-        backgroundColor: '#282A36',
+        backgroundColor: '#fff',
         height: 70
       }
     }}
@@ -21,25 +22,25 @@ const _layout = () => {
         <Tabs.Screen
         name='home'
         options={{
-          tabBarIcon: ({color}) => <FontAwesome size={24} name='home' color={color} />
+          tabBarIcon: ({color}) => <Foundation name="home" size={28} color={color} />
         }}
         />
         <Tabs.Screen
         name='statistics'
         options={{
-          tabBarIcon: ({color}) => <FontAwesome size={24} name='bar-chart' color={color}/>
+          tabBarIcon: ({color}) => <MaterialIcons name="insert-chart" size={28} color={color} />
         }}
         />
         <Tabs.Screen
         name='contact'
         options={{
-          tabBarIcon: ({color}) => <FontAwesome size={24} name='history' color={color}/>
+          tabBarIcon: ({color}) => <MaterialIcons name="contact-page" size={28} color={color} />
         }}
         />
         <Tabs.Screen
         name='profile'
         options={{
-          tabBarIcon: ({color}) => <FontAwesome size={24} name='user' color={color}/>
+          tabBarIcon: ({color}) => <FontAwesome6 name="user" size={28} color={color} />
         }}
         />
     </Tabs>
