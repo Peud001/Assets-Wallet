@@ -11,7 +11,6 @@ const Dashboard1 = () => {
         <Image
         source={images.user}
         className='w-[50px] h-[50px] rounded-full'
-        resizeMode='contain'
         />
         <View className='border rounded-2xl p-2.5 border-[#7B7B7B]'>
         <FontAwesome6  name='bell' color='#fff' size={24}/>

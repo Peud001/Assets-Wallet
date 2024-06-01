@@ -22,8 +22,7 @@ const RecentContact = () => {
           <TouchableOpacity key={index} className='flex-row items-center gap-5 mb-[15px]'>
             <Image 
             source={list.image}
-            className='w-[60px] h-[60px] rounded-full'
-            resizeMode='contain'
+            className='w-[50px] h-[50px] rounded-full'
             />
             <View className='gap-1'>
               <Text className='text-xl font-semibold'>{list.name}</Text>

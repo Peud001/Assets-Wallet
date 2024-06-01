@@ -13,7 +13,7 @@ const Contact = () => {
   }
 
   return (
-    <SafeAreaView className='p-5'>
+    <SafeAreaView className='px-5'>
       <ScrollView showsVerticalScrollIndicator={false}>
       <Text className='text-2xl text-center p-10 font-bold'>Contact</Text>
       <Search
