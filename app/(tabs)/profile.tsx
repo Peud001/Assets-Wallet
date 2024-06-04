@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, Image, Switch } from 'react-native'
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons'
@@ -21,7 +21,7 @@ const Profile = () => {
 
   return (
     <SafeAreaView className='px-5 py-8'>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* ---- Part 1---- */}
         <View className='flex-row justify-between'>
           <Text className='text-xl font-bold text-gray-400'>Profile</Text>
@@ -31,10 +31,15 @@ const Profile = () => {
         </View>
         {/* ---- Part 2---- */}
         <View className='items-center gap-1 py-5'>
-          <Image
+         <View className='relative w-[100px] h-[100px]'>
+         <Image
           source={images.user}
           className='w-[100px] h-[100px] rounded-full'
           />
+          <TouchableOpacity className='absolute right-0 bottom-0'>
+          <FontAwesome6 name='edit' size={18} color='#290067'/>
+          </TouchableOpacity>
+         </View>
           <Text className='text-lg'>Michael Allen</Text>
           <Text className='text-gray-400'>+22 432 4342</Text>
         </View>
@@ -42,7 +47,7 @@ const Profile = () => {
         <View className='gap-7'>
           {
             profileDetails.map((item, index) => (
-              <View className='flex-row justify-between items-center'>
+              <View className='flex-row justify-between items-center' key={index}>
             <View className='flex-row items-center gap-5'>
             <FontAwesome6 name={item.name} size={20} color='#290067'/>
             <Text className='font-bold'>{item.title}</Text>
@@ -51,15 +56,22 @@ const Profile = () => {
           </View>
             ))
           }
-          <View className='flex-row justify-between'>
+          <View className='flex-row justify-between items-center'>
             <View className='flex-row gap-5'>
               <FontAwesome6 name='bell' size={22} color='#290067'/>
               <Text className='font-bold'>Notification</Text>
             </View>
             <TouchableOpacity onPress={handleToggle}>
-            <FontAwesome6 name={toggle? 'toggle-on' : 'toggle-off' } size={30} color='#290067'/>
+            <Switch
+            value={toggle}
+            onValueChange={() => setToggle(prev => !prev)}
+            />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity className='flex-row items-center'>
+            <FontAwesome name='sign-out' size={22} color='#290067'/>
+            <Text className='pl-5 font-bold'>Logout</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
