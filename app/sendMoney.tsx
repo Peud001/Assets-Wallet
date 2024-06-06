@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list';
+import Input from '../components/Input';
+import Button from '../components/Button';
 
 type Bank = {
     name: string;
@@ -15,8 +17,15 @@ const SendMoney = () => {
 
     const navigate = useNavigation()
     const [banks, setBanks] = useState<Bank[]>([])
-    const [selectedAccount, setSelectedAccount] = useState<string>('')
-    const [selectedBank, setSelectedBank] = useState<string>('')
+
+    const [value, setValue] = useState({
+        selected_account : '',
+        selected_bank : '',
+        account_num : '',
+        amount : '',
+        narration : ''
+    })
+    console.log(value)
 
     const accountName = [
         {id: 1, name: 'Saving'},
@@ -36,10 +45,10 @@ const SendMoney = () => {
         } catch (error) {
             console.error('Error fetching banks:', error)
         }
-    };
+    }
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView className='flex-1 bg-white'>
             <ScrollView
                 showsVerticalScrollIndicator={false} >
                 <LinearGradient
@@ -49,30 +58,53 @@ const SendMoney = () => {
                 >
                     <View className='flex-row px-5 py-7'>
                         <TouchableOpacity onPress={() => { navigate.goBack() }}>
-                            <FontAwesome6 name='angle-left' color='#fff' size={28} />
+                            <FontAwesome6 name='angle-left' color='#fff' size={24} />
                         </TouchableOpacity>
                         <Text className='text-white text-2xl font-bold text-center w-full'>Send Money</Text>
                     </View>
                     <View className=' p-3 bg-white rounded-t-3xl '>
                         <Text className='p-1'>From Account</Text>
                         <SelectList
-                            setSelected={(val: string) => setSelectedAccount(val)}
+                            setSelected={(val: string) => setValue({...value, selected_account: val})}
                             data={accountName.map((account) => ({ key: account.id, value: account.name }))}
                             placeholder='Select account to debit'
                             search={false}
+                            boxStyles={{
+                                borderColor: '#C5C6C7'
+                            }}
                         />
                     </View>
                 </LinearGradient>
-                <View className='h-full bg-white'>
-                    <View className=' p-3 bg-white rounded-t-3xl '>
+                <View className='px-3'>
                         <Text className='p-1'>To Bank</Text>
                         <SelectList
-                            setSelected={(val: string) => setSelectedBank(val)}
+                            setSelected={(val: string) => setValue({...value, selected_bank: val})}
                             data={banks.map((bank: Bank) => ({ key: bank.code, value: bank.name }))}
                             placeholder='Select Bank'
                             notFoundText='Bank is not found'
+                            boxStyles={{
+                                borderColor: '#C5C6C7'
+                            }}
                         />
-                    </View>
+                    <Input
+                    placeholder='Enter Destination Account'
+                    value={value.account_num}
+                    handleChange={(e) => setValue({...value, account_num: e})}
+                    keyboardType='numeric'
+                    />
+                    <Input
+                    placeholder='Enter Amount'
+                    value={value.amount}
+                    handleChange={(e) => setValue({...value, amount: e})}
+                    keyboardType='numeric'
+                    />
+                    <Input
+                    placeholder='Enter Naration'
+                    value={value.narration}
+                    handleChange={(e) => setValue({...value, narration: e})}
+                    keyboardType='default'
+                    />
+                     <Button/>
                 </View>
             </ScrollView>
         </SafeAreaView>
