@@ -4,8 +4,12 @@ import { Tabs } from 'expo-router'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { Foundation } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useColorScheme } from 'nativewind';
 
 const _layout = () => {
+
+  const {colorScheme} = useColorScheme()
+
   return (
     <Tabs
     screenOptions={{
@@ -14,8 +18,10 @@ const _layout = () => {
       tabBarInactiveTintColor: '#CDCDE0',
       headerShown: false,
       tabBarStyle: {
-        backgroundColor: '#fff',
-        height: 70
+        backgroundColor: colorScheme === 'light'? '#fff' : '#090909',
+        height: 70,
+        borderTopColor: 'transparent',
+        borderTopWidth: 0
       }
     }}
     >

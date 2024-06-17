@@ -3,10 +3,12 @@ import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons'
 import images from '../../constants/images'
+import { useColorScheme } from 'nativewind'
 
 const Profile = () => {
 
   const [toggle, setToggle] = useState(false)
+  const {colorScheme} = useColorScheme()
 
   const profileDetails = [
     {name: 'arrow-alt-circle-up', title: 'Email', value:'example@gmail.com'},
@@ -20,11 +22,11 @@ const Profile = () => {
   }
 
   return (
-    <SafeAreaView className='px-5 py-8'>
+    <SafeAreaView className='px-5 py-8 dark:bg-bgDarkPrimary'>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ---- Part 1---- */}
         <View className='flex-row justify-between'>
-          <Text className='text-xl font-bold text-gray-400'>Profile</Text>
+          <Text className='text-xl font-bold text-gray-400 dark:text-textPrimary'>Profile</Text>
           <TouchableOpacity>
           <FontAwesome6 name='bell' size={22}/>
           </TouchableOpacity>
@@ -41,7 +43,7 @@ const Profile = () => {
           </TouchableOpacity>
          </View>
           <Text className='text-lg'>Michael Allen</Text>
-          <Text className='text-gray-400'>+22 432 4342</Text>
+          <Text className='text-gray-400 dark:text-textPrimary'>+22 432 4342</Text>
         </View>
         {/* ---- Part 3---- */}
         <View className='gap-7'>
@@ -49,17 +51,17 @@ const Profile = () => {
             profileDetails.map((item, index) => (
               <View className='flex-row justify-between items-center' key={index}>
             <View className='flex-row items-center gap-5'>
-            <FontAwesome6 name={item.name} size={20} color='#290067'/>
-            <Text className='font-bold'>{item.title}</Text>
+            <FontAwesome6 name={item.name} size={20} color={colorScheme === "light"? '#290067' : '#E3E3E3'}/>
+            <Text className='font-bold dark:text-textPrimary'>{item.title}</Text>
             </View>
-            <Text className='text-gray-400'>{item.value}</Text>
+            <Text className='text-gray- dark:text-textPrimary'>{item.value}</Text>
           </View>
             ))
           }
           <View className='flex-row justify-between items-center'>
             <View className='flex-row gap-5'>
-              <FontAwesome6 name='bell' size={22} color='#290067'/>
-              <Text className='font-bold'>Notification</Text>
+              <FontAwesome6 name='bell' size={22} color={colorScheme === "light"? '#290067' : '#E3E3E3'}/>
+              <Text className='font-bold dark:text-textPrimary'>Notification</Text>
             </View>
             <TouchableOpacity onPress={handleToggle}>
             <Switch
@@ -69,8 +71,8 @@ const Profile = () => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity className='flex-row items-center'>
-            <FontAwesome name='sign-out' size={22} color='#290067'/>
-            <Text className='pl-5 font-bold'>Logout</Text>
+            <FontAwesome name='sign-out' size={22} color={colorScheme === "light"? '#290067' : '#E3E3E3'}/>
+            <Text className='pl-5 font-bold dark:text-textPrimary'>Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

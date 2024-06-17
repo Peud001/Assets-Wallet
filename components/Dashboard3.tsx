@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, FlatList, Image, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native'
 import React from 'react'
 import {Utility} from '../constants/utility'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -12,13 +12,13 @@ const Dashboard3 = () => {
   ]
 
   return (
-    <View className='w-full h-full bg-white p-5'>
+    <View className='w-full h-full dark:bg-bgDarkSecondary p-5' >
       <Text className='text-xl font-semibold'>Payment List</Text>
       <View className='flex-row flex-wrap justify-between gap-5'>
         {Utility.map((item, index) => (
             <TouchableOpacity key={index} className='justify-center items-center gap-1 pt-5'>
                 <FontAwesome6 name={item.name} size={28} color={item.color}/>
-                <Text>{item.title}</Text>
+                <Text className='dark:text-textSecondary'>{item.title}</Text>
             </TouchableOpacity>
         ))}
       </View>
@@ -26,7 +26,7 @@ const Dashboard3 = () => {
         <View className='flex-row justify-between items-center'>
         <Text className='text-xl font-semibold'>Promo & Discount</Text>
         <TouchableOpacity>
-        <Text className='font-semibold text-[17px] text-purple-800'>See more</Text>
+        <Text className='font-semibold text-[17px] dark:text-textSecondary'>See more</Text>
         </TouchableOpacity>
         </View>
         <ScrollView

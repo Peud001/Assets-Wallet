@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons'
+import { FontAwesome6 } from '@expo/vector-icons'
 
 interface pressType {
     onPress: ()=>void

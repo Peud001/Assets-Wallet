@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import Input from '../components/Input';
+import Input from '../components/CustomInput';
 import Button from '../components/Button';
 
 type Bank = {
@@ -17,6 +17,7 @@ const SendMoney = () => {
 
     const navigate = useNavigation()
     const [banks, setBanks] = useState<Bank[]>([])
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const [value, setValue] = useState({
         selected_account : '',
@@ -25,7 +26,9 @@ const SendMoney = () => {
         amount : '',
         narration : ''
     })
-    console.log(value)
+    
+    const active = value.selected_account && value.selected_bank && value.account_num && value.amount
+
 
     const accountName = [
         {id: 1, name: 'Saving'},
@@ -44,6 +47,20 @@ const SendMoney = () => {
             setBanks(result)
         } catch (error) {
             console.error('Error fetching banks:', error)
+        }
+    }
+
+    const handleSubmit = async() => {
+        console.log('tapped')
+        try{
+            setIsSubmitting(true)
+            setTimeout(()=>{
+                setIsSubmitting(false)
+                console.log('successfull')
+            }, 3000)
+        }catch(err){
+            console.log('failed')
+            setIsSubmitting(false)
         }
     }
 
@@ -104,7 +121,7 @@ const SendMoney = () => {
                     handleChange={(e) => setValue({...value, narration: e})}
                     keyboardType='default'
                     />
-                     <Button/>
+                     <Button active={active} isSubmitting={isSubmitting} handleSubmit={handleSubmit}/>
                 </View>
             </ScrollView>
         </SafeAreaView>
