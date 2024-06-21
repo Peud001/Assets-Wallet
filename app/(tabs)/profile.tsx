@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons'
 import images from '../../constants/images'
 import { useColorScheme } from 'nativewind'
+import { SignOut } from '@/services/auth'
 
 const Profile = () => {
 
@@ -19,6 +20,16 @@ const Profile = () => {
 
   const handleToggle = () => {
     setToggle(prev => !prev)
+  }
+
+  const handleLogout = async() => {
+    try{
+      await SignOut()
+      console.log('sign out successfully')
+    }catch(error){
+      console.log('Failed', error)
+      return error
+    }
   }
 
   return (
@@ -70,7 +81,7 @@ const Profile = () => {
             />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity className='flex-row items-center'>
+        <TouchableOpacity className='flex-row items-center' onPress={handleLogout}>
             <FontAwesome name='sign-out' size={22} color={colorScheme === "light"? '#290067' : '#E3E3E3'}/>
             <Text className='pl-5 font-bold dark:text-textPrimary'>Logout</Text>
           </TouchableOpacity>

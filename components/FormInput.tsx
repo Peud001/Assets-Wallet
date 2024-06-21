@@ -1,6 +1,7 @@
-import { Text, TextInput, View } from 'react-native'
-import React from 'react'
+import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
 import { Controller } from 'react-hook-form'
+import { Feather } from '@expo/vector-icons'
 
 
 interface FormPropType {
@@ -10,6 +11,11 @@ interface FormPropType {
 }
 
 const FormInput = ({ control, name, ...otherProps }: FormPropType) => {
+
+    const [showPassword, setShowPassword] = useState(false)
+
+    const isPassword = name === 'password' || name === 'confirmPassword'
+
     return (
         <View className='mb-5'>
             <Controller
@@ -17,15 +23,26 @@ const FormInput = ({ control, name, ...otherProps }: FormPropType) => {
             name={name}
             render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
                 <View>
-                    <TextInput
+                   <View className='mb-3 h-[50px] border flex-row items-center rounded-2xl p-3 bg-[#21222B] focus:border-red-300'>
+                   <TextInput
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
+                        secureTextEntry={isPassword && !showPassword}
                         {...otherProps}
-                         className='border w-full justify-center rounded-2xl p-3'
+                         className=' w-full flex-1 h-[50px] text-[#BFC5CB]'
+                         placeholderTextColor="#888"
                     />
                     {
-                        error && <Text className='text-red-600 text-center mt-1'>{error.message}</Text>
+                        isPassword && <TouchableOpacity
+                        onPress={() => setShowPassword(prev => !prev)}
+                        >
+                            <Feather name={showPassword ? "eye" : "eye-off"} size={22} color="#888" />
+                        </TouchableOpacity>
+                    }
+                   </View>
+                    {
+                        error && <Text className='text-red-600 mt-1'>{error.message}</Text>
                     }
                 </View>
             )}

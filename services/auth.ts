@@ -1,7 +1,7 @@
-import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassword, signOut, getReactNativePersistence} from "firebase/auth";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from "firebase/app";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDv0ldKZGBfyA4LoRkhXR4T25WJhiP8OVg",
@@ -14,36 +14,52 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app, { persistence: getReactNativePersistence(ReactNativeAsyncStorage) });
 
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+});
 
-type AuthType = {
-    email: string
-    password: string
+export default auth;
+
+type SignInType = {
+  email: string;
+  password: string;
+};
+
+type SignUpType = {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
 }
 
-export const signin =  async({email, password}: AuthType) => {
-    try{
-        const userCredentials = await signInWithEmailAndPassword(auth, email, password)
-        return userCredentials.user
-    }catch(error){
-        return error
-    }
-}
+export const SignIn = async ({ email, password }: SignInType) => {
+  try {
+    const userCredentials = await signInWithEmailAndPassword(auth, email, password);
+    console.log(userCredentials)
+    const userData =await AsyncStorage.getItem('user')
+    return userCredentials.user;
+  } catch (error) {
+    return error;
+  }
+};
 
-export const register = async({email, password}: AuthType) => {
-    try{
-        const userCredentials = await createUserWithEmailAndPassword(auth, email, password)
-        return userCredentials.user
-    }catch(error){
-        return error
-    }
-}
+export const SignUp = async ({ firstName, lastName, email, password }: SignUpType) => {
+  try {
+    const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+    await AsyncStorage.setItem('user', JSON.stringify({firstName, lastName}))
+    return userCredentials.user;
+  } catch (error) {
+    return error;
+  }
+};
 
-export const signout = async () => {
-    await signOut(auth)
-}
+export const SignOut = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    return error;
+  }
+};
 
-function getReactNativePersistence(ReactNativeAsyncStorage: any): import("@firebase/auth").Persistence | import("@firebase/auth").Persistence[] | undefined {
-    throw new Error("Function not implemented.");
-}
+
