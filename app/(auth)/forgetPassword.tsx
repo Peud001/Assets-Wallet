@@ -1,12 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-const Request = () => {
+const ForgetPassword = () => {
   return (
     <View>
-      <Text>Request</Text>
+      <Text>ForgetPassword</Text>
     </View>
   )
 }
 
-export default Request
+export default ForgetPassword

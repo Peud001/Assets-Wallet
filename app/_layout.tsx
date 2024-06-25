@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import {
   DarkTheme,
@@ -6,25 +6,33 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
-import AuthProvider from "@/providers/authProvider";
+import AuthProvider, { AuthContext } from "@/providers/authProvider"
+import { RootSiblingParent } from 'react-native-root-siblings'
 
 const RootLayout = () => {
   const { colorScheme } = useColorScheme();
+  const {user} = useContext(AuthContext)
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerTransparent: true,
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="history" options={{ headerShown: false }} />
-          <Stack.Screen name="request" options={{ headerShown: false }} />
-          <Stack.Screen name="sendMoney" options={{ headerShown: false }} />
-          <Stack.Screen name="topUp" options={{ headerShown: false }} />
-        </Stack>
+        <RootSiblingParent>
+      <Stack
+      screenOptions={{
+        headerTransparent: true,
+        headerShown: false
+      }}
+      >
+        <Stack.Screen
+         name = '(app)'
+        options={{}}
+        />
+        <Stack.Screen
+         name = '(auth)'
+        options={{}}
+        />
+      </Stack>
+      </RootSiblingParent>
       </AuthProvider>
     </ThemeProvider>
   );

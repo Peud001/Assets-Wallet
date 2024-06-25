@@ -5,7 +5,7 @@ import auth from "@/services/auth";
 
 
 
-const AuthContext = createContext<{user: User|null}>({
+export const AuthContext = createContext<{user: User|null}>({
     user : null
 })
 
@@ -17,7 +17,7 @@ const AuthProvider = ({children}: {children : ReactNode}) => {
     onAuthStateChanged(auth, (user) => {
         if(user){
             setUser(user)
-            router.push('/home')
+            router.replace('(tabs)/home')
         }else{
             setUser(null)
             router.push('/')

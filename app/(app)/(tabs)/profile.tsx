@@ -2,7 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, Image, Switch } from 'react-n
 import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons'
-import images from '../../constants/images'
+import images from '../../../constants/images'
 import { useColorScheme } from 'nativewind'
 import { SignOut } from '@/services/auth'
 

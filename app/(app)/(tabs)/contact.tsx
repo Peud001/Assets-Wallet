@@ -1,8 +1,8 @@
 import { View, Text, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import Search from '../../components/Search'
+import Search from '../../../components/Search'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import RecentContact from '../../components/RecentContact'
+import RecentContact from '../../../components/RecentContact'
 
 const Contact = () => {
 

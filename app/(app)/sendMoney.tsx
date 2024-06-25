@@ -5,8 +5,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { SelectList } from 'react-native-dropdown-select-list';
-import Input from '../components/CustomInput';
-import Button from '../components/Button';
+import Button from '@/components/Button';
+import CustomInput from '@/components/CustomInput';
+import { router } from 'expo-router';
 
 type Bank = {
     name: string;
@@ -74,7 +75,7 @@ const SendMoney = () => {
                     end={{ x: 1, y: 0 }}
                 >
                     <View className='flex-row px-5 py-7'>
-                        <TouchableOpacity onPress={() => { navigate.goBack() }}>
+                        <TouchableOpacity onPress={() => navigate.canGoBack() ? navigate.goBack() : router.replace('home')}>
                             <FontAwesome6 name='angle-left' color='#fff' size={24} />
                         </TouchableOpacity>
                         <Text className='text-white text-2xl font-bold text-center w-full'>Send Money</Text>
@@ -103,19 +104,19 @@ const SendMoney = () => {
                                 borderColor: '#C5C6C7'
                             }}
                         />
-                    <Input
+                    <CustomInput
                     placeholder='Enter Destination Account'
                     value={value.account_num}
                     handleChange={(e) => setValue({...value, account_num: e})}
                     keyboardType='numeric'
                     />
-                    <Input
+                    <CustomInput
                     placeholder='Enter Amount'
                     value={value.amount}
                     handleChange={(e) => setValue({...value, amount: e})}
                     keyboardType='numeric'
                     />
-                    <Input
+                    <CustomInput
                     placeholder='Enter Naration'
                     value={value.narration}
                     handleChange={(e) => setValue({...value, narration: e})}

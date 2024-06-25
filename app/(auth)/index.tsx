@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {z} from 'zod'
 import {zodResolver} from '@hookform/resolvers/zod'
-import FormInput from '../components/FormInput'
+import FormInput from '../../components/FormInput'
 import { Link } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { SignIn } from '@/services/auth'
@@ -50,8 +50,7 @@ const Login = () => {
         <TouchableOpacity onPress={handleSubmit(handlePress)} className='border h-[50px] rounded-2xl items-center justify-center bg-[#3155E9]'>
           <Text>Login</Text>
         </TouchableOpacity>
-        <Text className='pt-3 text-center text-[#BFC5CB]'>Don't have an account? <Link href='/register' className='font-bold'><Text className='text-[#FBBC05]'>Sign Up</Text></Link></Text>
-        <Link href='home' className='text-white mt-5'>Go to Home</Link>
+        <Text className='pt-3 text-center text-[#BFC5CB]'>Don't have an account? <Link href='(auth)/register' className='font-bold'><Text className='text-[#FBBC05]'>Sign Up</Text></Link></Text>
     </SafeAreaView>
   )
 }

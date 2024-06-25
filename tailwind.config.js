@@ -9,7 +9,8 @@ module.exports = {
         textTertiary: '#5B21B6',
         bgDarkPrimary: '#161616',
         bgDarkSecondary: '#090909',
-        bgLightSecondary: '#fff'
+        bgLightSecondary: '#fff',
+        btnBg: '#ECEFF7'
       }
     },
   },

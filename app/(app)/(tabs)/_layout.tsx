@@ -6,7 +6,7 @@ import { Foundation } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useColorScheme } from 'nativewind';
 
-const _layout = () => {
+const TabsLayout = () => {
 
   const {colorScheme} = useColorScheme()
 
@@ -28,7 +28,7 @@ const _layout = () => {
         <Tabs.Screen
         name='home'
         options={{
-          tabBarIcon: ({color}) => <Foundation name="home" size={28} color={color} />
+          tabBarIcon: ({color}) => <Foundation name="home" size={28} color={color} />,
         }}
         />
         <Tabs.Screen
@@ -53,4 +53,4 @@ const _layout = () => {
   )
 }
 
-export default _layout
+export default TabsLayout

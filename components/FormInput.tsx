@@ -8,9 +8,11 @@ interface FormPropType {
     control:  any
     name: string
     placeholder: string
+    isLoading: boolean
+    keyboardType: string
 }
 
-const FormInput = ({ control, name, ...otherProps }: FormPropType) => {
+const FormInput = ({ control, name, isLoading, keyboardType, ...otherProps }: FormPropType) => {
 
     const [showPassword, setShowPassword] = useState(false)
 
@@ -30,8 +32,10 @@ const FormInput = ({ control, name, ...otherProps }: FormPropType) => {
                         onBlur={onBlur}
                         secureTextEntry={isPassword && !showPassword}
                         {...otherProps}
-                         className=' w-full flex-1 h-[50px] text-[#BFC5CB]'
+                         className=' w-full flex-1 h-[50px] text-[#BFC5CB] '
                          placeholderTextColor="#888"
+                         editable={!isLoading}
+                         keyboardType={keyboardType}
                     />
                     {
                         isPassword && <TouchableOpacity

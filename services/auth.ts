@@ -2,18 +2,22 @@ import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassw
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from "firebase/app";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDv0ldKZGBfyA4LoRkhXR4T25WJhiP8OVg",
-  authDomain: "wallet-bd8fe.firebaseapp.com",
-  projectId: "wallet-bd8fe",
-  storageBucket: "wallet-bd8fe.appspot.com",
-  messagingSenderId: "1016965412384",
-  appId: "1:1016965412384:web:ca1e7241bd76d97ab96e45",
-  measurementId: "G-E5KJ9ZZB6P"
-};
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
+}
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig)
+export const firebaseDb = getFirestore(app)
+export const firebaseStorage = getStorage(app)
 
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
@@ -36,7 +40,6 @@ type SignUpType = {
 export const SignIn = async ({ email, password }: SignInType) => {
   try {
     const userCredentials = await signInWithEmailAndPassword(auth, email, password);
-    console.log(userCredentials)
     const userData =await AsyncStorage.getItem('user')
     return userCredentials.user;
   } catch (error) {

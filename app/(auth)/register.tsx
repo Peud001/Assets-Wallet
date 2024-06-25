@@ -1,14 +1,14 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FormInput from '../components/FormInput';
+import FormInput from '../../components/FormInput';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar'
-import { SignUp} from '../services/auth';
+import { SignUp} from '../../services/auth';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
@@ -40,7 +40,7 @@ const Register = () => {
       confirmPassword: ''
     },
     resolver: zodResolver(formSchema)
-  });
+  })
 
   const handlePress = async (data: DataType) => {
     try {

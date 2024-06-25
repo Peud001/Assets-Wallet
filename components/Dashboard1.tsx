@@ -11,22 +11,14 @@ const Dashboard1 = () => {
   console.log(colorScheme)
 
   return (
-      <View className='p-5'>
         <View className='flex-row items-center justify-between'>
-        <Image
-        source={images.user}
-        className='w-[50px] h-[50px] rounded-full'
-        />
-        <TouchableOpacity
-        onPress={toggleColorScheme}
-        >
-        {colorScheme === 'light'? <Feather name="sun" size={28} color="black" /> : <Feather name="moon" size={28} color="white" />}
+        <View>
+          <Text className='text-lg text-gray-500'>Welcome back</Text>
+          <Text className='text-2xl font-bold'>Solomon Udofia</Text>
+        </View>
+        <TouchableOpacity>
+        <Feather name='bell' size={28}/>
         </TouchableOpacity>
-        </View>
-        <View className='w-full items-center pb-9'>
-            <Text className='dark:text-textSecondary mt-3 text-lg '>Available Balance</Text>
-            <Text className='dark:text-textPrimary text-5xl mt-3 font-semibold'>$450.54</Text>
-        </View>
         </View>
   )
 }

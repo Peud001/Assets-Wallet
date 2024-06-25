@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native'
 import React from 'react'
-import {Utility} from '../constants/utility'
 import { FontAwesome6 } from '@expo/vector-icons'
 import images from '../constants/images'
+import { Redirect, router } from 'expo-router'
 
 const Dashboard3 = () => {
 
@@ -12,22 +12,20 @@ const Dashboard3 = () => {
   ]
 
   return (
-    <View className='w-full h-full dark:bg-bgDarkSecondary p-5' >
-      <Text className='text-xl font-semibold'>Payment List</Text>
-      <View className='flex-row flex-wrap justify-between gap-5'>
-        {Utility.map((item, index) => (
-            <TouchableOpacity key={index} className='justify-center items-center gap-1 pt-5'>
-                <FontAwesome6 name={item.name} size={28} color={item.color}/>
-                <Text className='dark:text-textSecondary'>{item.title}</Text>
-            </TouchableOpacity>
-        ))}
+    <View className='w-full h-full dark:bg-bgDarkSecondary' >
+      <View className='flex-row w-full justify-between'>
+        <TouchableOpacity className='flex-row p-4 bg-btnBg items-center justify-evenly rounded-2xl flex-1' onPress={() => router.replace('/sendMoney')}>
+        <FontAwesome6 name="arrow-right-arrow-left" size={24} color="black"/>
+          <Text className='pl-4'>Transfer</Text>
+        </TouchableOpacity>
+        <TouchableOpacity className='flex-row p-4 bg-[#ECEFF7] items-center justify-evenly rounded-2xl flex-1 ml-7'>
+        <FontAwesome6 name="money-bill-wave" size={24} color="black" />
+          <Text className='pl-4'>Bills</Text>
+        </TouchableOpacity>
       </View>
       <View className='pt-5'>
         <View className='flex-row justify-between items-center'>
-        <Text className='text-xl font-semibold'>Promo & Discount</Text>
-        <TouchableOpacity>
-        <Text className='font-semibold text-[17px] dark:text-textSecondary'>See more</Text>
-        </TouchableOpacity>
+        <Text className='text-xl font-semibold dark:text-textSecondary'>Promo & Discount</Text>
         </View>
         <ScrollView
           horizontal={true}
