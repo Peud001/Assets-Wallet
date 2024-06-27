@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, Modal, TextInput, ActivityIndicator } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, Modal, TextInput, ActivityIndicator, FlatList, ImageSourcePropType } from 'react-native';
+import React, { useEffect, useState } from 'react';
 import images from '../constants/images';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,22 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from './FormInput';
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseDb, firebaseStorage } from '@/services/auth';
-import { addDoc, collection } from 'firebase/firestore';
+import { DocumentData, addDoc, collection, getDocs } from 'firebase/firestore';
 import Toast from 'react-native-root-toast';
+import { getContacts } from '@/lib/fetchContacts';
 
-
-const contactList = [
-  {name: 'Clarissa Bates', bank: 'Bank - 000218872531', image: images.user},
-  {name: 'Thomas Diwantara', bank: 'Bank - 000218872532', image: images.user},
-  {name: 'Mark Johnson', bank: 'Bank - 000218872533', image: images.user},
-  {name: 'Anisa Bella', bank: 'Bank - 000218872534', image: images.user},
-  {name: 'Angelina Johnson', bank: 'Bank - 000218872535', image: images.user},
-  {name: 'Johan Crafton', bank: 'Bank - 000218872536', image: images.user},
-  {name: 'Ariana Manisa', bank: 'Bank - 000218872537', image: images.user},
-  {name: 'Solomon Udofia', bank: 'Bank - 000218872538', image: images.user},
-]
-
-type ModalInputType = {
+export type ModalInputType = {
+  id: string
   firstName: string
   lastName: string
   accountNumber: string
@@ -45,6 +35,7 @@ const RecentContact = () => {
 
   const {control, handleSubmit, reset} = useForm({
     defaultValues: {
+      id:'',
       firstName: '',
       lastName: '',
       accountNumber: '',
@@ -68,7 +59,7 @@ const RecentContact = () => {
     const uploadedImage = await uploadBytes(storageRef, contactImageBlob)
     const downloadUrl = await getDownloadURL(uploadedImage.ref)
     const collectionRef = collection(firebaseDb, 'contactData')
-    const storeDoc = await addDoc(collectionRef, {...validatedData, image: downloadUrl})
+    const storeDoc = await addDoc(collectionRef, {...validatedData, image: downloadUrl, id: Date.now()})
     if (storeDoc){
       Toast.show('Beneficiary Added successfully', {
         duration: Toast.durations.LONG,
@@ -77,6 +68,7 @@ const RecentContact = () => {
     reset()
     setImageUri('')
     setIsVisible(false)
+    getContacts()
    }catch(error){
     console.log(error)
     Toast.show('Failed, Please try again', {
@@ -86,7 +78,6 @@ const RecentContact = () => {
     setIsLoading(false)
    }
   }
-
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -102,7 +93,7 @@ const RecentContact = () => {
   };
 
   return (
-    <View className='flex-1'>
+    <View>
       <Modal
         animationType="slide"
         transparent={true}
@@ -169,7 +160,7 @@ const RecentContact = () => {
         </View>
       </Modal>
 
-      <View className='px-5'>
+      <View>
         <View className='flex-row justify-between items-center'>
           <Text className='py-5 text-lg text-gray-400 font-bold'>Contacts</Text>
           <TouchableOpacity onPress={() => setIsVisible(prev => !prev)} className='flex-row bg-btnBg p-3 items-center rounded-2xl'>
@@ -177,20 +168,7 @@ const RecentContact = () => {
             <Text className='text-gray-400 font-bold text-lg pl-2'>Add</Text>
           </TouchableOpacity>
         </View>
-
         <View>
-          {contactList.map((list, index) => (
-            <TouchableOpacity key={index} className='flex-row items-center gap-5 mb-[15px]'>
-              <Image 
-                source={list.image}
-                className='w-[50px] h-[50px] rounded-full'
-              />
-              <View className='gap-1'>
-                <Text className='text-xl font-semibold'>{list.name}</Text>
-                <Text className='text-gray-400'>{list.bank}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
         </View>
       </View>
     </View>
