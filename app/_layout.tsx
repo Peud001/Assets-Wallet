@@ -8,6 +8,7 @@ import {
 import { useColorScheme } from "nativewind";
 import AuthProvider, { AuthContext } from "@/providers/authProvider"
 import { RootSiblingParent } from 'react-native-root-siblings'
+import "../global.css"
 
 const RootLayout = () => {
   const { colorScheme } = useColorScheme();

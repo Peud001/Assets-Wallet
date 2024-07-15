@@ -1,5 +1,6 @@
-import { View, Text, TextInput, KeyboardTypeOptions } from 'react-native'
+import { TextInput, KeyboardTypeOptions } from 'react-native'
 import React from 'react'
+import { View } from './Themed'
 
 interface inputType {
     placeholder: string

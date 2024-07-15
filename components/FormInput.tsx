@@ -1,7 +1,8 @@
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {KeyboardTypeOptions, TextInput, TouchableOpacity} from 'react-native'
 import React, { useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { Feather } from '@expo/vector-icons'
+import { Text, View } from './Themed'
 
 
 interface FormPropType {
@@ -9,7 +10,7 @@ interface FormPropType {
     name: string
     placeholder: string
     isLoading: boolean
-    keyboardType: string
+    keyboardType: KeyboardTypeOptions
 }
 
 const FormInput = ({ control, name, isLoading, keyboardType, ...otherProps }: FormPropType) => {
@@ -25,15 +26,14 @@ const FormInput = ({ control, name, isLoading, keyboardType, ...otherProps }: Fo
             name={name}
             render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
                 <View>
-                   <View className='mb-3 h-[50px] border flex-row items-center rounded-2xl p-3 bg-[#21222B] focus:border-red-300'>
+                   <View className='mb-3 h-[50px] border flex-row items-center rounded-2xl p-3 focus:border-red-300'>
                    <TextInput
                         value={value}
                         onChangeText={onChange}
                         onBlur={onBlur}
                         secureTextEntry={isPassword && !showPassword}
                         {...otherProps}
-                         className=' w-full flex-1 h-[50px] text-[#BFC5CB] '
-                         placeholderTextColor="#888"
+                         className=' w-full flex-1 h-[50px]'
                          editable={!isLoading}
                          keyboardType={keyboardType}
                     />
@@ -41,7 +41,7 @@ const FormInput = ({ control, name, isLoading, keyboardType, ...otherProps }: Fo
                         isPassword && <TouchableOpacity
                         onPress={() => setShowPassword(prev => !prev)}
                         >
-                            <Feather name={showPassword ? "eye" : "eye-off"} size={22} color="#888" />
+                            <Feather name={showPassword ? "eye" : "eye-off"} size={22} color='#1f1f1f' />
                         </TouchableOpacity>
                     }
                    </View>

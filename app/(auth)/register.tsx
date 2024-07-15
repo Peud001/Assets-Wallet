@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormInput from '../../components/FormInput';
@@ -9,6 +9,8 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar'
 import { SignUp} from '../../services/auth';
+import { Text, View } from '@/components/Themed';
+import { useColorScheme } from 'nativewind';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
@@ -50,15 +52,17 @@ const Register = () => {
     } catch (error) {
       console.error("Registration error:", error);
     }
-  };
+  }
+
+  const {colorScheme} = useColorScheme()
 
   return (
     <SafeAreaView className="flex-1">
-      <ScrollView showsVerticalScrollIndicator={false} className="px-3 py-5 bg-[#16171E] h-full">
+      <ScrollView showsVerticalScrollIndicator={false} className="px-3 py-5 h-full">
         <View className="items-center gap-2 my-6">
-          <Ionicons name="diamond" size={60} color="#BFC5CB" />
-          <Text className="font-bold text-2xl text-[#BFC5CB]">Welcome</Text>
-          <Text className="text-[#BFC5CB]">Create an account here</Text>
+          <Ionicons name="diamond" size={60} color={colorScheme==='light'? '#1f1f1f' : '#c0c0c0'} />
+          <Text className="font-bold text-2xl">Welcome</Text>
+          <Text>Create an account here</Text>
         </View>
         <FormInput
           control={control}
@@ -89,11 +93,10 @@ const Register = () => {
           <Text className="text-white">Sign Up</Text>
         </TouchableOpacity>
         <View className="justify-center flex-row p-2">
-          <Text className="text-[#BFC5CB]">Already ave an account? </Text>
-          <Link href="/" className="font-bold text-[#FBBC05]">Sign In</Link>
+          <Text className="text-[#BFC5CB]">Already have an account? </Text>
+          <Link href="/" className="font-bold">Sign In</Link>
         </View>
       </ScrollView>
-      <StatusBar backgroundColor="#16171E" />
     </SafeAreaView>
   );
 };

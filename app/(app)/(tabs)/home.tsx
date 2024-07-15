@@ -6,17 +6,20 @@ import Dashboard1 from '../../../components/Dashboard1'
 import Dashboard2 from '../../../components/Dashboard2'
 import Dashboard3 from '../../../components/Dashboard3'
 import { useColorScheme } from 'nativewind'
+import { View } from '@/components/Themed'
 
 const HomeScreen = () => {
 
   const {colorScheme} = useColorScheme()
 
   return (
-    <SafeAreaView className='dark:bg-bgDarkSecondary dark:text-textPrimary px-3 py-5'>
+    <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
+      <View className='dark:bg-bgDarkSecondary dark:text-textPrimary px-3 py-5'>
       <Dashboard1/>
       <Dashboard2/>
       <Dashboard3/>
+      </View>
       <StatusBar
         style={colorScheme === 'light' ? 'dark' : 'light'}
       />

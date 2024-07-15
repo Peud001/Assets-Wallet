@@ -1,7 +1,8 @@
-import { View, Text, Image } from 'react-native'
+import { Image } from 'react-native'
 import React from 'react'
 import PagerView from 'react-native-pager-view'
 import images from '../constants/images'
+import { View } from './Themed'
 
 const Carousel = () => {
 

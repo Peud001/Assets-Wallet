@@ -1,38 +1,22 @@
-import { ActivityIndicator, FlatList, Text } from 'react-native'
+import { ActivityIndicator, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Search from '../../../components/Search'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import RecentContact, { ModalInputType } from '../../../components/ContactModal'
-import { getContacts } from '@/lib/fetchContacts'
-import { View } from 'react-native'
+import RecentContact from '../../../components/ContactModal'
 import { TouchableOpacity } from 'react-native'
 import { Image } from 'react-native'
+import { useGetContactsQuery } from '@/features/slice/apiSlice'
+import { Text, View } from '@/components/Themed'
 
 const Contact = ({}) => {
 
   const [value, setValue] = useState<string>('')
-  const [contactList, setContactList] = useState<ModalInputType[]>([]) //Should be made a global state
-  const [isContactLoading, setIsContactLoading] = useState(false)
 
   const handleChange = (text: string) => {
     setValue(text)
   }
 
-  const handleContact = async() => {
-    try{
-      setIsContactLoading(prev => !prev)
-    const contacts = await getContacts()
-    setContactList(contacts)
-    }catch(error){
-      console.log(error)
-    }finally{
-      setIsContactLoading(prev => !prev)
-    }
-  }
-
-  useEffect(()=>{
-    handleContact()
-   }, [])
+   const { data, error, isLoading } = useGetContactsQuery()
 
    const renderItem = ({item}) => (
     <View className="">
@@ -64,21 +48,23 @@ const Contact = ({}) => {
    )
 
   return (
-    <SafeAreaView className='flex-1 px-5'>
+    <SafeAreaView>
+      <View className='px-5'>
       {
-        isContactLoading? <View className='h-full justify-center items-center'>
+        isLoading? <View className='h-full justify-center items-center'>
           <ActivityIndicator size='large' color='#0000ff' />
           <Text>Just a moment, please ....</Text>
           </View> : 
         <FlatList
-        data={contactList}
+        data={data}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={() => <Text>No contact, yet!</Text>}
+        ListEmptyComponent={() => <View className='h-full justify-center items-center'><Text>No contact, yet!</Text></View>}
         renderItem={renderItem}
         ListHeaderComponent={header}
         showsVerticalScrollIndicator={false}
         />
       }
+      </View>
     </SafeAreaView>
   )
 }

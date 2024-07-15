@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity, Modal, TextInput, ActivityIndicator, FlatList, ImageSourcePropType } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { Image, TouchableOpacity, Modal, ActivityIndicator} from 'react-native';
+import React, { useState } from 'react';
 import images from '../constants/images';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,9 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from './FormInput';
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { firebaseDb, firebaseStorage } from '@/services/auth';
-import { DocumentData, addDoc, collection, getDocs } from 'firebase/firestore';
+import {  addDoc, collection } from 'firebase/firestore';
 import Toast from 'react-native-root-toast';
 import { getContacts } from '@/lib/fetchContacts';
+import { useGetContactsQuery } from '@/features/slice/apiSlice';
+import { addContact } from '@/lib/addContact';
+import { Text, View } from './Themed';
 
 export type ModalInputType = {
   id: string
@@ -27,7 +30,7 @@ const formSchema = z.object({
   accountNumber: z.string().min(10, 'Account number is required').max(50, 'Account number is too long')
 })
 
-const RecentContact = () => {
+const ContactsModel = () => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [imageUri, setImageUri] = useState('')
@@ -44,7 +47,6 @@ const RecentContact = () => {
     resolver: zodResolver(formSchema)
   })
 
-
   const handlePress = async(data: ModalInputType) => {
     setIsLoading(true)
     const validatedData = formSchema.parse(data)
@@ -59,18 +61,13 @@ const RecentContact = () => {
     const uploadedImage = await uploadBytes(storageRef, contactImageBlob)
     const downloadUrl = await getDownloadURL(uploadedImage.ref)
     const collectionRef = collection(firebaseDb, 'contactData')
-    const storeDoc = await addDoc(collectionRef, {...validatedData, image: downloadUrl, id: Date.now()})
-    if (storeDoc){
-      Toast.show('Beneficiary Added successfully', {
-        duration: Toast.durations.LONG,
-      });
-    }
+    addContact(collectionRef, {...validatedData, image: downloadUrl, id: Date.now()})
     reset()
     setImageUri('')
     setIsVisible(false)
     getContacts()
    }catch(error){
-    console.log(error)
+    return error
     Toast.show('Failed, Please try again', {
       duration: Toast.durations.LONG,
     });
@@ -90,7 +87,11 @@ const RecentContact = () => {
     if (!result.canceled) {
       setImageUri(result.assets[0].uri);
     }
-  };
+  }
+
+  const handleAdd = () => {
+    setIsVisible(prev => !prev)
+  }
 
   return (
     <View>
@@ -99,7 +100,7 @@ const RecentContact = () => {
         transparent={true}
         visible={isVisible}
       >
-        <View className='flex-1 justify-center items-center bg-white bg-[#00000090]'>
+        <View className='flex-1 justify-center items-center bg-[#00000090]'>
           <View className='bg-white p-5 rounded-lg w-[90%]'>
           <TouchableOpacity
           disabled={isLoading} 
@@ -163,7 +164,7 @@ const RecentContact = () => {
       <View>
         <View className='flex-row justify-between items-center'>
           <Text className='py-5 text-lg text-gray-400 font-bold'>Contacts</Text>
-          <TouchableOpacity onPress={() => setIsVisible(prev => !prev)} className='flex-row bg-btnBg p-3 items-center rounded-2xl'>
+          <TouchableOpacity onPress={handleAdd} className='flex-row bg-btnBg p-3 items-center rounded-2xl'>
             <Ionicons name="add-circle-outline" size={24} color="gray" />
             <Text className='text-gray-400 font-bold text-lg pl-2'>Add</Text>
           </TouchableOpacity>
@@ -175,4 +176,4 @@ const RecentContact = () => {
   );
 };
 
-export default RecentContact;
+export default ContactsModel;

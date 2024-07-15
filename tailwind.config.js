@@ -1,17 +1,40 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  presets: [require("nativewind/preset")],
   theme: {
     extend: {
       colors: {
-        textPrimary: '#E3E3E3',
-        textSecondary: '#C0C0C0',
-        textTertiary: '#5B21B6',
-        bgDarkPrimary: '#161616',
-        bgDarkSecondary: '#090909',
-        bgLightSecondary: '#fff',
-        btnBg: '#ECEFF7'
-      }
+        primary: {
+          DEFAULT: "var(--color-primary-default)",
+          light: "var(--color-primary-light)",
+        },
+        secondary: {
+          DEFAULT: "var(--color-secondary-default)",
+          light: "var(--color-secondary-light)",
+        },
+        tertiary: {
+          DEFAULT: "var(--color-tertiary-default)",
+          light: "var(--color-tertiary-light)",
+        },
+        accent: {
+          DEFAULT: "var(--color-accent-default)",
+          light: "var(--color-accent-light)",
+        },
+        grey: {
+          DEFAULT: "var(--color-grey-default)",
+        },
+        slate: {
+          DEFAULT: "var(--color-slate-default)",
+        },
+        dark: {
+          DEFAULT: "var(--color-dark-default)",
+        },
+        light: {
+          DEFAULT: "var(--color-light-default)",
+        },
+        overlay: "var(--color-overlay)",
+      },
     },
   },
   plugins: [],

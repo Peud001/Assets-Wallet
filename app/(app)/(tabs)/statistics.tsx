@@ -1,7 +1,8 @@
-import { View, Text, Dimensions } from 'react-native'
+import { Dimensions } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LineChart } from 'react-native-chart-kit'
+import { Text, View } from '@/components/Themed'
 
 const Statistics = () => {
   return (
