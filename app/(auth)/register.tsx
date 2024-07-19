@@ -1,5 +1,5 @@
-import { ScrollView, TouchableOpacity } from 'react-native';
-import React from 'react';
+import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormInput from '../../components/FormInput';
 import { z } from 'zod';
@@ -33,6 +33,9 @@ type DataType = {
 
 
 const Register = () => {
+
+  const [isLoading, setIsLoading] = useState(false)
+
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       firstName: '',
@@ -45,19 +48,22 @@ const Register = () => {
   })
 
   const handlePress = async (data: DataType) => {
+    setIsLoading(prev => !prev)
     try {
       const validatedData = formSchema.parse(data)
       await SignUp(validatedData)
       reset
     } catch (error) {
       console.error("Registration error:", error);
+    } finally{
+      setIsLoading(prev => !prev)
     }
   }
 
   const {colorScheme} = useColorScheme()
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false} className="px-3 py-5 h-full">
         <View className="items-center gap-2 my-6">
           <Ionicons name="diamond" size={60} color={colorScheme==='light'? '#1f1f1f' : '#c0c0c0'} />
@@ -68,29 +74,41 @@ const Register = () => {
           control={control}
           name="firstName"
           placeholder="First name"
+          isLoading={isLoading}
+          keyboardType='default'
         />
         <FormInput
           control={control}
           name="lastName"
           placeholder="Last name"
+          isLoading={isLoading}
+          keyboardType='default'
         />
         <FormInput
           control={control}
           name="email"
           placeholder="Email"
+          isLoading={isLoading}
+          keyboardType='email-address'
         />
         <FormInput
           control={control}
           name="password"
           placeholder="Password"
+          isLoading={isLoading}
+          keyboardType='default'
         />
         <FormInput
           control={control}
           name="confirmPassword"
           placeholder="Confirm password"
+          isLoading={isLoading}
+          keyboardType='default'
         />
         <TouchableOpacity onPress={handleSubmit(handlePress)} className="border h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mt-4">
-          <Text className="text-white">Sign Up</Text>
+          {
+            isLoading? <ActivityIndicator size='large' color='white'/> : <Text className="text-white">Sign Up</Text>
+          }
         </TouchableOpacity>
         <View className="justify-center flex-row p-2">
           <Text className="text-[#BFC5CB]">Already have an account? </Text>

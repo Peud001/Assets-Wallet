@@ -19,16 +19,17 @@ export const apiSlice = createApi({
             providesTags: ['contacts']
         }),
         addContact: build.mutation({
-            async queryFn(newContact) {
+            async queryFn({reference, newContact}) {
                 try{
-                    const contact = await addContact(newContact)
+                    const contact = await addContact(reference, newContact)
                     return {data : contact}
                 }catch(error){
-                    return error
+                    return {error}
                 }
-            }
+            },
+            invalidatesTags: ['contacts']
         })
     }),
 });
 
-export const { useGetContactsQuery } = apiSlice;
+export const { useGetContactsQuery, useAddContactMutation} = apiSlice;

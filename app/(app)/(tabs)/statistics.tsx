@@ -1,60 +1,70 @@
-import { Dimensions } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { LineChart } from 'react-native-chart-kit'
-import { Text, View } from '@/components/Themed'
+import { Text, View } from "@/components/Themed";
+import { useAppSelector } from "@/features/store/Hooks";
+import { EvilIcons, FontAwesome6 } from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { ScrollView } from "react-native";
+import { PieChart } from "react-native-gifted-charts";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const Statistics = () => {
+
+const statistics = () => {
+
+  const transferHistory = useAppSelector(state => state.stat.transferHistory)
+
+  const [totalIncome, setTotalIncome] = useState(0);
+
+  useEffect(() => {
+    let income = 0;
+    transferHistory.forEach((element: any) => {
+      income += element.amount;
+    });
+    setTotalIncome(income);
+  }, [transferHistory]);
+
+  const pieData = [
+    {
+      value: (totalIncome / totalIncome) * 100,
+      color: "#00AA4D",
+      text: "Income",
+    },
+    { value: 30, color: "red", text: "Expenses" },
+  ]
+
   return (
-    <SafeAreaView className='w-full h-full items-center justify-center'>
+    <SafeAreaView>
+      <ScrollView className="px-3">
+      <Text className="text-center font-bold text-3xl pt-5">Statistics</Text>
+      <View className="items-center my-9">
+        <PieChart
+          showText
+          textColor="white"
+          radius={150}
+          textSize={20}
+          data={pieData}
+        />
+      </View>
       <View>
-  <Text>Bezier Line Chart</Text>
-  <LineChart
-    data={{
-      labels: ["January", "February", "March", "April", "May", "June"],
-      datasets: [
-        {
-          data: [
-            Math.random() * 10,
-            Math.random() * 10,
-            Math.random() * 10,
-            Math.random() * 10,
-            Math.random() * 10,
-            Math.random() * 10
-          ]
-        }
-      ]
-    }}
-    width={Dimensions.get("window").width} 
-    height={220}
-    yAxisLabel="$"
-    yAxisSuffix="k"
-    yAxisInterval={1} // optional, defaults to 1
-    chartConfig={{
-      backgroundColor: "#e26a00",
-      backgroundGradientFrom: "#fb8c00",
-      backgroundGradientTo: "#ffa726",
-      decimalPlaces: 2, // optional, defaults to 2dp
-      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-      style: {
-        borderRadius: 16
-      },
-      propsForDots: {
-        r: "6",
-        strokeWidth: "2",
-        stroke: "#ffa726"
-      }
-    }}
-    bezier
-    style={{
-      marginVertical: 8,
-      borderRadius: 16
-    }}
-  />
-</View>
+        <Text className="font-bold text-2xl">History</Text>
+        <View>
+          {
+            transferHistory.map((item: any, index: number) => (
+              <View key={index} className="flex-row items-center justify-between mt-5">
+                <View className="flex-row items-center gap-2">
+                <EvilIcons name="arrow-left" size={24} color="#F57C7C" />
+                    <View>
+                      <Text className="font-bold text-lg">Transfer to {item.firstName} {item.lastName}</Text>
+                      <Text className="">{item.date} - {item.time}</Text>
+                    </View>
+                </View>
+                <Text className="text-lg text-red-400">-${item.amount}</Text>
+              </View>
+            ))
+          }
+        </View>
+      </View>
+      </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default Statistics
+export default statistics;

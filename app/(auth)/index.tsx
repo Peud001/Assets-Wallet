@@ -29,7 +29,8 @@ const Login = () => {
   });
 
   const handlePress = async (data: any) => {
-    setIsLoading((prev) => !prev);
+    setIsLoading((prev) => !prev)
+    setError('')
     try {
       const validatedData = formSchema.parse(data);
       await SignIn(validatedData);

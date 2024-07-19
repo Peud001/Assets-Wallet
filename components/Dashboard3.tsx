@@ -24,7 +24,7 @@ const Dashboard3 = () => {
         </TouchableOpacity>
         <TouchableOpacity className='flex-row p-4 items-center justify-evenly rounded-2xl flex-1 ml-7'>
         <FontAwesome6 name="money-bill-wave" size={24} color={colorScheme==='light'? '#1F1F1F' : '#C0C0C0'} />
-          <Text className='pl-4'>Bills</Text>
+          <Text className='pl-4'>Top Up</Text>
         </TouchableOpacity>
       </View>
       <View className='pt-5'>

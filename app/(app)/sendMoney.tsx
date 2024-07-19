@@ -16,6 +16,8 @@ import { useGetContactsQuery } from "@/features/slice/apiSlice";
 import images from "@/constants/images";
 import KeyPad from "@/components/keyPad";
 import { Text, View } from "@/components/Themed";
+import { addDoc, collection } from "firebase/firestore";
+import { firebaseDb } from "@/services/auth";
 
 type ContactType = {
   image: string;
@@ -30,14 +32,22 @@ const SendMoney = () => {
   const [amount, setAmount] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [beneficiary, setBeneficiary] = useState<ContactType | null>(null);
-  const [showModel, setShowModel] = useState(false)
+  const [showModel, setShowModel] = useState(false);
 
-  const { data, error, isLoading } = useGetContactsQuery();
+  const { data, error, isLoading } = useGetContactsQuery()
+
+  const currentDate = new Date()
+  const day = currentDate.getDate()
+  const month = currentDate.getMonth() + 1
+  const year = currentDate.getFullYear()
+  const formattedDateManual = `${day}-${month}-${year}`
+  const timeString = currentDate.toLocaleTimeString();
 
   const handleSubmit = async () => {
     if (amount === "" || beneficiary === null) return;
     try {
       setIsSubmitting(true);
+      await addDoc(collection(firebaseDb, "statData"), {firstName: beneficiary.firstName, lastName: beneficiary.lastName, bank: beneficiary.accountNumber, image: beneficiary.image, amount: amount, date: formattedDateManual, time: timeString});
       setTimeout(() => {
         setIsSubmitting(false);
         setShowModel(true);
@@ -101,18 +111,18 @@ const SendMoney = () => {
         </ScrollView>
       );
     }
-  }
+  };
 
   const formatDate = (date: any) => {
     const options = {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     };
-    return date.toLocaleString('en-US', options).replace(',', '');
+    return date.toLocaleString("en-US", options).replace(",", "");
   };
 
   return (
@@ -125,41 +135,45 @@ const SendMoney = () => {
                 disabled={isLoading}
                 className="items-end"
                 onPress={() => {
-                  setShowModel(false)
-                  setBeneficiary(null)
-                  setAmount('')
+                  setShowModel(false);
+                  setBeneficiary(null);
+                  setAmount("");
                 }}
               >
                 <AntDesign name="closecircleo" size={28} color="black" />
               </TouchableOpacity>
               <View className="items-center my-5">
-              <Feather name="check-circle" size={50} color="green" />
-              <Text className="mt-5 font-bold text-xl">Transfer Successful</Text>
-              <Text className="text-[#a0a0a0]">Your money has been transfered successfully</Text>
+                <Feather name="check-circle" size={50} color="green" />
+                <Text className="mt-5 font-bold text-xl">
+                  Transfer Successful
+                </Text>
+                <Text className="text-[#a0a0a0]">
+                  Your money has been transfered successfully
+                </Text>
               </View>
               <View className="flex-row justify-between my-5">
                 <Text className="text-[#a0a0a0]">Transfer Amount</Text>
-                <Text className="font-bold">${parseFloat(amount).toFixed(2)}</Text>
+                <Text className="font-bold">
+                  ${parseFloat(amount).toFixed(2)}
+                </Text>
               </View>
               <View className="mb-5 border border-[#e0e0e0] p-2 rounded-2xl">
-              {
-                beneficiary !=null && (
+                {beneficiary != null && (
                   <View className="flex-row items-center">
                     <Image
-                    source={{ uri: beneficiary.image }}
-                    className="w-[40px] h-[40px] rounded-full"
-                  />
-                  <View className="pl-3">
-                    <Text className="font-bold text-[16px]">
-                      {beneficiary.firstName} {beneficiary.lastName}
-                    </Text>
-                    <Text className="text-[#b0b0b0]">
-                      Bank - {beneficiary.accountNumber}
-                    </Text>
+                      source={{ uri: beneficiary.image }}
+                      className="w-[40px] h-[40px] rounded-full"
+                    />
+                    <View className="pl-3">
+                      <Text className="font-bold text-[16px]">
+                        {beneficiary.firstName} {beneficiary.lastName}
+                      </Text>
+                      <Text className="text-[#b0b0b0]">
+                        Bank - {beneficiary.accountNumber}
+                      </Text>
+                    </View>
                   </View>
-                  </View>
-                )
-              }
+                )}
               </View>
               <View className="flex-row justify-between">
                 <Text className="text-[#a0a0a0]">Date & time</Text>
@@ -229,7 +243,7 @@ const SendMoney = () => {
                     </Text>
                     <Text className="text-[#b0b0b0]">
                       Bank -{" "}
-                      {beneficiary ? beneficiary.accountNumber : 'xxxxxxxxxx'}
+                      {beneficiary ? beneficiary.accountNumber : "xxxxxxxxxx"}
                     </Text>
                   </View>
                   <AntDesign
