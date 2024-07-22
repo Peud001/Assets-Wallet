@@ -2,7 +2,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Alert,
   Modal,
 } from "react-native";
 import React, { useState } from "react";

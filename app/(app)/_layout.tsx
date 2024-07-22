@@ -14,7 +14,6 @@ const UserLayout = () => {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="history" options={{ headerShown: false }} />
         <Stack.Screen name="sendMoney" options={{ headerShown: false }} />
         <Stack.Screen name="topUp" options={{ headerShown: false }} />
       </Stack>
