@@ -1,6 +1,6 @@
 import { View, Text } from '@/components/Themed'
 import { BalanceType, fetchBalance } from '@/features/slice/balanceSlice'
-import { useAppSelector } from '@/features/store/Hooks'
+import { useAppDispatch, useAppSelector } from '@/features/store/Hooks'
 import { firebaseDb } from '@/services/auth'
 import { FontAwesome } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
@@ -14,7 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 const TopUp = () => {
 
-  const navigate = useNavigation();
+  const navigate = useNavigation()
+  const dispatch = useAppDispatch()
 
   const accountBalance = useAppSelector(state => state.balance.balance as BalanceType[])
   console.log(accountBalance)
@@ -31,14 +32,14 @@ const TopUp = () => {
 
   const handlePress = async() => {
     setIsLoading(true)
-    const currentBalance = accountBalance[0].balance
+    const currentBalance = accountBalance.length > 0 && accountBalance[0].balance
     await updateDoc(doc(firebaseDb, "balance", "amount"), {
       balance: balance + currentBalance,
     })
-    fetchBalance()
+    dispatch(fetchBalance())
     setIsLoading(false)
     setBalance('')
-    let toast = Toast.show('Successful.', {
+    Toast.show('Successful.', {
       duration: Toast.durations.LONG,
     });
   }
@@ -52,7 +53,6 @@ const TopUp = () => {
                   ? navigate.goBack()
                   : router.replace("home")
               }
-              className=''
             >
               <FontAwesome name="angle-left" color={colorScheme === 'light'? 'black' : 'white'} size={30} />
             </TouchableOpacity>

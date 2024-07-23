@@ -9,7 +9,7 @@ interface pressType {
 
 const KeyPad = ({ onPress }: pressType) => {
   return (
-    <ScrollView className='bg-white'>
+    <ScrollView>
       <View className='flex-row justify-between max-w-[680px] mb-10'>
         <TouchableOpacity onPress={() => onPress('9')} className='w-12 h-12 items-center justify-center '>
           <Text className='text-2xl text-gray-500'>9</Text>

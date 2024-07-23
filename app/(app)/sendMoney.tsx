@@ -7,7 +7,7 @@ import {
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, Feather, FontAwesome, Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Button from "@/components/Button";
 import { router } from "expo-router";
@@ -15,8 +15,13 @@ import { useGetContactsQuery } from "@/features/slice/apiSlice";
 import images from "@/constants/images";
 import KeyPad from "@/components/keyPad";
 import { Text, View } from "@/components/Themed";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/services/auth";
+import Toast from "react-native-root-toast";
+import { ActivityIndicator } from "react-native";
+import { useColorScheme } from "nativewind";
+import { useAppDispatch, useAppSelector } from "@/features/store/Hooks";
+import { BalanceType, fetchBalance } from "@/features/slice/balanceSlice";
 
 type ContactType = {
   image: string;
@@ -33,7 +38,12 @@ const SendMoney = () => {
   const [beneficiary, setBeneficiary] = useState<ContactType | null>(null);
   const [showModel, setShowModel] = useState(false);
 
+  const {colorScheme} = useColorScheme()
+  const dispatch = useAppDispatch()
+
   const { data, error, isLoading } = useGetContactsQuery()
+  const balance = useAppSelector(state => state.balance.balance as BalanceType[])
+  const currentBalance = balance[0].balance
 
   const currentDate = new Date()
   const day = currentDate.getDate()
@@ -43,16 +53,31 @@ const SendMoney = () => {
   const timeString = currentDate.toLocaleTimeString();
 
   const handleSubmit = async () => {
-    if (amount === "" || beneficiary === null) return;
+    if ( beneficiary === null){
+      Toast.show('Select a beneficiary', {
+        duration: Toast.durations.LONG,
+      });
+      return
+    }
+    else if(amount === ""){
+      Toast.show('Enter an amount', {
+        duration: Toast.durations.LONG,
+      });
+      return
+    }
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      await addDoc(collection(firebaseDb, "statData"), {firstName: beneficiary.firstName, lastName: beneficiary.lastName, bank: beneficiary.accountNumber, image: beneficiary.image, amount: amount, date: formattedDateManual, time: timeString});
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setShowModel(true);
-      }, 3000);
+      await addDoc(collection(firebaseDb, "statData"), {firstName: beneficiary.firstName, lastName: beneficiary.lastName, bank: beneficiary.accountNumber, image: beneficiary.image, amount: amount, date: formattedDateManual, time: timeString})
+      await updateDoc(doc(firebaseDb, "balance", "amount"), {
+        balance: currentBalance - parseFloat(amount),
+      })
+      dispatch(fetchBalance())
+      setShowModel(true)
     } catch (err) {
-      console.log("failed");
+      Toast.show('Failed - please try again', {
+        duration: Toast.durations.LONG,
+      });
+    }finally{
       setIsSubmitting(false);
     }
   };
@@ -81,7 +106,7 @@ const SendMoney = () => {
       return (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="top-[130px] px-3 absolute h-[70%] bg-white w-full rounded-2x self-center border border-[#e0e0e0] rounded-2xl"
+          className="top-[130px] px-3 absolute h-[70%] bg-white w-full rounded-2x self-center rounded-2xl"
           style={{ zIndex: 1000 }}
         >
           <View className="py-2">
@@ -97,10 +122,10 @@ const SendMoney = () => {
                     className="w-[40px] h-[40px] rounded-full"
                   />
                   <View className="pl-3">
-                    <Text className="font-bold text-[16px]">
+                    <Text className="font-bold text-[16px] text-black">
                       {item.firstName} {item.lastName}
                     </Text>
-                    <Text className="text-[#b0b0b0]">
+                    <Text className="text-black">
                       Bank - {item.accountNumber}
                     </Text>
                   </View>
@@ -125,7 +150,7 @@ const SendMoney = () => {
   };
 
   return (
-    <SafeAreaView className="bg-white flex-1">
+    <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Modal animationType="slide" transparent={true} visible={showModel}>
           <View className="flex-1 justify-center items-center bg-white bg-[#00000090]">
@@ -182,18 +207,9 @@ const SendMoney = () => {
           </View>
         </Modal>
 
-        <LinearGradient
-          colors={["#290067", "#4600AC"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              paddingHorizontal: 20,
-              paddingVertical: 36,
-            }}
-          >
+         
+          <View className="px-3 ">
+          <View className="flex-row align-center px-3 my-10">
             <TouchableOpacity
               onPress={() =>
                 navigate.canGoBack()
@@ -201,24 +217,15 @@ const SendMoney = () => {
                   : router.replace("home")
               }
             >
-              <FontAwesome name="angle-left" color="#fff" size={24} />
+              <Fontisto name="angle-left" size={20} color={colorScheme==='light'? 'black' : 'white'} />
             </TouchableOpacity>
-            <Text
-              style={{
-                color: "white",
-                fontSize: 24,
-                fontWeight: "bold",
-                textAlign: "center",
-                flex: 1,
-              }}
-            >
+            <Text className=" text-center flex-1 text-3xl">
               Send Money
             </Text>
           </View>
-        </LinearGradient>
-        <View className="px-3 bg-white">
+
           {renderDropdown()}
-          <View className="pt-[36px]">
+          <View className="">
             <Text className="text-[#c0c0c0] font-bold m-1">
               Select a beneficiary
             </Text>
@@ -261,9 +268,20 @@ const SendMoney = () => {
           </View>
           <View className="pt-7">
             <KeyPad onPress={handlePress} />
-            <Button handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
+           
           </View>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mt-3"
+            >
+              <Text className="font-bold text-white text-xl">{
+            isSubmitting? 
+             <ActivityIndicator size='large' color='#fff'/>
+             : 'Continue'
+            }</Text>
+            </TouchableOpacity>
         </View>
+        
       </ScrollView>
     </SafeAreaView>
   );
