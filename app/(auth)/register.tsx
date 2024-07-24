@@ -115,6 +115,9 @@ const Register = () => {
           <Link href="/" className="font-bold">Sign In</Link>
         </View>
       </ScrollView>
+      <StatusBar
+        style={colorScheme === 'light' ? 'dark' : 'light'}
+      />
     </SafeAreaView>
   );
 };

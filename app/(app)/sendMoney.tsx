@@ -1,15 +1,8 @@
-import {
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Modal,
-} from "react-native";
+import { ScrollView, TouchableOpacity, Image, Modal, ActivityIndicator } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
-import { AntDesign, Feather, FontAwesome, Fontisto } from "@expo/vector-icons";
+import { AntDesign, Feather, Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import Button from "@/components/Button";
 import { router } from "expo-router";
 import { useGetContactsQuery } from "@/features/slice/apiSlice";
 import images from "@/constants/images";
@@ -18,10 +11,11 @@ import { Text, View } from "@/components/Themed";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/services/auth";
 import Toast from "react-native-root-toast";
-import { ActivityIndicator } from "react-native";
 import { useColorScheme } from "nativewind";
 import { useAppDispatch, useAppSelector } from "@/features/store/Hooks";
 import { BalanceType, fetchBalance } from "@/features/slice/balanceSlice";
+import { fetchTransferHistory } from "@/features/slice/statSlice";
+import { StatusBar } from "expo-status-bar";
 
 type ContactType = {
   image: string;
@@ -36,48 +30,53 @@ const SendMoney = () => {
   const [amount, setAmount] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [beneficiary, setBeneficiary] = useState<ContactType | null>(null);
-  const [showModel, setShowModel] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const {colorScheme} = useColorScheme()
-  const dispatch = useAppDispatch()
+  const { colorScheme } = useColorScheme();
+  const dispatch = useAppDispatch();
 
-  const { data, error, isLoading } = useGetContactsQuery()
-  const balance = useAppSelector(state => state.balance.balance as BalanceType[])
-  const currentBalance = balance[0].balance
+  const { data, error, isLoading } = useGetContactsQuery();
+  const balance = useAppSelector((state) => state.balance.balance as BalanceType[]);
+  const currentBalance = balance[0]?.balance ?? 0;
 
-  const currentDate = new Date()
-  const day = currentDate.getDate()
-  const month = currentDate.getMonth() + 1
-  const year = currentDate.getFullYear()
-  const formattedDateManual = `${day}-${month}-${year}`
+  const currentDate = new Date();
+  const formattedDateManual = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
   const timeString = currentDate.toLocaleTimeString();
 
   const handleSubmit = async () => {
-    if ( beneficiary === null){
-      Toast.show('Select a beneficiary', {
-        duration: Toast.durations.LONG,
-      });
-      return
+    if (!beneficiary) {
+      Toast.show("Select a beneficiary", { duration: Toast.durations.LONG });
+      return;
     }
-    else if(amount === ""){
-      Toast.show('Enter an amount', {
-        duration: Toast.durations.LONG,
-      });
-      return
+    if (!amount) {
+      Toast.show("Enter an amount", { duration: Toast.durations.LONG });
+      return;
     }
+    if (parseFloat(amount) > currentBalance) {
+      Toast.show("Insufficient funds", { duration: Toast.durations.LONG });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      await addDoc(collection(firebaseDb, "statData"), {firstName: beneficiary.firstName, lastName: beneficiary.lastName, bank: beneficiary.accountNumber, image: beneficiary.image, amount: amount, date: formattedDateManual, time: timeString})
+      await addDoc(collection(firebaseDb, "statData"), {
+        firstName: `Transfer to ${beneficiary.firstName}`,
+        lastName: beneficiary.lastName,
+        amount: amount,
+        date: formattedDateManual,
+        time: timeString,
+        iconName: 'arrow-alt-circle-left',
+        iconColor: '#F57C7C'
+      });
       await updateDoc(doc(firebaseDb, "balance", "amount"), {
         balance: currentBalance - parseFloat(amount),
-      })
-      dispatch(fetchBalance())
-      setShowModel(true)
-    } catch (err) {
-      Toast.show('Failed - please try again', {
-        duration: Toast.durations.LONG,
       });
-    }finally{
+      dispatch(fetchBalance());
+      dispatch(fetchTransferHistory());
+      setShowModal(true);
+    } catch (err) {
+      Toast.show("Failed - please try again", { duration: Toast.durations.LONG });
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -98,7 +97,7 @@ const SendMoney = () => {
 
   const handleSelect = (item: ContactType) => {
     setBeneficiary(item);
-    setIsVisible(!isVisible);
+    setIsVisible(false);
   };
 
   const renderDropdown = () => {
@@ -149,40 +148,33 @@ const SendMoney = () => {
     return date.toLocaleString("en-US", options).replace(",", "");
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setBeneficiary(null);
+    setAmount("");
+  };
+
   return (
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Modal animationType="slide" transparent={true} visible={showModel}>
-          <View className="flex-1 justify-center items-center bg-white bg-[#00000090]">
+        <Modal animationType="slide" transparent={true} visible={showModal}>
+          <View className="flex-1 justify-center items-center bg-[#00000090]">
             <View className="bg-white p-5 rounded-lg w-[90%]">
-              <TouchableOpacity
-                disabled={isLoading}
-                className="items-end"
-                onPress={() => {
-                  setShowModel(false);
-                  setBeneficiary(null);
-                  setAmount("");
-                }}
-              >
-                <AntDesign name="closecircleo" size={28} color="black" />
-              </TouchableOpacity>
               <View className="items-center my-5">
                 <Feather name="check-circle" size={50} color="green" />
                 <Text className="mt-5 font-bold text-xl">
                   Transfer Successful
                 </Text>
                 <Text className="text-[#a0a0a0]">
-                  Your money has been transfered successfully
+                  Your money has been transferred successfully
                 </Text>
               </View>
               <View className="flex-row justify-between my-5">
                 <Text className="text-[#a0a0a0]">Transfer Amount</Text>
-                <Text className="font-bold">
-                  ${parseFloat(amount).toFixed(2)}
-                </Text>
+                <Text className="font-bold">${parseFloat(amount).toFixed(2)}</Text>
               </View>
               <View className="mb-5 border border-[#e0e0e0] p-2 rounded-2xl">
-                {beneficiary != null && (
+                {beneficiary && (
                   <View className="flex-row items-center">
                     <Image
                       source={{ uri: beneficiary.image }}
@@ -199,90 +191,92 @@ const SendMoney = () => {
                   </View>
                 )}
               </View>
-              <View className="flex-row justify-between">
+              <View className="flex-row justify-between mb-5">
                 <Text className="text-[#a0a0a0]">Date & time</Text>
                 <Text>{formatDate(new Date())}</Text>
               </View>
+              <TouchableOpacity
+                className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mb-5"
+                onPress={closeModal}
+                accessibilityLabel="Close success modal"
+              >
+                <Text className="text-white font-bold">Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
 
-         
-          <View className="px-3 ">
+        <View className="px-3">
           <View className="flex-row align-center px-3 my-10">
             <TouchableOpacity
               onPress={() =>
-                navigate.canGoBack()
-                  ? navigate.goBack()
-                  : router.replace("home")
+                navigate.canGoBack() ? navigate.goBack() : router.replace("home")
               }
+              accessibilityLabel="Go back"
             >
-              <Fontisto name="angle-left" size={20} color={colorScheme==='light'? 'black' : 'white'} />
+              <Fontisto
+                name="angle-left"
+                size={20}
+                color={colorScheme === "light" ? "black" : "white"}
+              />
             </TouchableOpacity>
-            <Text className=" text-center flex-1 text-3xl">
-              Send Money
-            </Text>
+            <Text className="text-center flex-1 text-3xl">Send Money</Text>
           </View>
 
           {renderDropdown()}
-          <View className="">
-            <Text className="text-[#c0c0c0] font-bold m-1">
-              Select a beneficiary
-            </Text>
-            <View>
-              <TouchableOpacity
-                onPress={toggleDropdown}
-                className="border border-[#e0e0e0] h-[60px] flex-row items-center p-2 rounded-2xl"
-              >
-                <Image
-                  source={
-                    beneficiary ? { uri: beneficiary.image } : images.user
-                  }
-                  className="w-[40px] h-[40px] rounded-full"
-                />
-                <View className="pl-3 w-[90%] flex-row items-center justify-between">
-                  <View>
-                    <Text className="font-bold text-[16px]">
-                      {beneficiary
-                        ? `${beneficiary.firstName} ${beneficiary.lastName}`
-                        : "John Doe"}
-                    </Text>
-                    <Text className="text-[#b0b0b0]">
-                      Bank -{" "}
-                      {beneficiary ? beneficiary.accountNumber : "xxxxxxxxxx"}
-                    </Text>
-                  </View>
-                  <AntDesign
-                    name={isVisible ? "up" : "down"}
-                    size={20}
-                    color="black"
-                  />
+
+          <View>
+            <Text className="text-[#c0c0c0] font-bold m-1">Select a beneficiary</Text>
+            <TouchableOpacity
+              onPress={toggleDropdown}
+              className="border border-[#e0e0e0] h-[60px] flex-row items-center p-2 rounded-2xl"
+              accessibilityLabel="Select beneficiary"
+            >
+              <Image
+                source={beneficiary ? { uri: beneficiary.image } : images.user}
+                className="w-[40px] h-[40px] rounded-full"
+              />
+              <View className="pl-3 w-[90%] flex-row items-center justify-between">
+                <View>
+                  <Text className="font-bold text-[16px]">
+                    {beneficiary
+                      ? `${beneficiary.firstName} ${beneficiary.lastName}`
+                      : "John Doe"}
+                  </Text>
+                  <Text className="text-[#b0b0b0]">
+                    Bank - {beneficiary ? beneficiary.accountNumber : "xxxxxxxxxx"}
+                  </Text>
                 </View>
-              </TouchableOpacity>
-            </View>
+                <AntDesign name={isVisible ? "up" : "down"} size={20} color="black" />
+              </View>
+            </TouchableOpacity>
           </View>
+
           <View className="mt-7 items-center w-full">
             <Text className="font-bold text-3xl w-full text-center">
               $ {amount ? parseFloat(amount).toFixed(2) : "0.00"}
             </Text>
           </View>
+
           <View className="pt-7">
             <KeyPad onPress={handlePress} />
-           
           </View>
+
           <TouchableOpacity
             onPress={handleSubmit}
             className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mt-3"
-            >
-              <Text className="font-bold text-white text-xl">{
-            isSubmitting? 
-             <ActivityIndicator size='large' color='#fff'/>
-             : 'Continue'
-            }</Text>
-            </TouchableOpacity>
+            disabled={isSubmitting}
+            accessibilityLabel="Submit transfer"
+          >
+            <Text className="font-bold text-white text-xl">
+              {isSubmitting ? <ActivityIndicator size="large" color="#fff" /> : "Continue"}
+            </Text>
+          </TouchableOpacity>
         </View>
-        
       </ScrollView>
+      <StatusBar
+        style={colorScheme === 'light' ? 'dark' : 'light'}
+      />
     </SafeAreaView>
   );
 };

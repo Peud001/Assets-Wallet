@@ -7,8 +7,12 @@ import { TouchableOpacity } from 'react-native'
 import { Image } from 'react-native'
 import { useGetContactsQuery } from '@/features/slice/apiSlice'
 import { Text, View } from '@/components/Themed'
+import { StatusBar } from 'expo-status-bar'
+import { useColorScheme } from 'nativewind'
 
 const Contact = ({}) => {
+
+  const {colorScheme} = useColorScheme()
 
   const [value, setValue] = useState<string>('')
 
@@ -65,6 +69,9 @@ const Contact = ({}) => {
         />
       }
       </View>
+      <StatusBar
+        style={colorScheme === 'light' ? 'dark' : 'light'}
+      />
     </SafeAreaView>
   )
 }

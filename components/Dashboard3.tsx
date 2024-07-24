@@ -1,8 +1,8 @@
 import { TouchableOpacity, Image, ScrollView } from 'react-native'
 import React from 'react'
-import { FontAwesome6 } from '@expo/vector-icons'
+import { Feather, FontAwesome6, Fontisto, MaterialIcons } from '@expo/vector-icons'
 import images from '../constants/images'
-import { router } from 'expo-router'
+import { Link, router } from 'expo-router'
 import { Text, View } from './Themed'
 import { useColorScheme } from 'nativewind'
 
@@ -27,23 +27,32 @@ const Dashboard3 = () => {
           <Text className='pl-4'>Top Up</Text>
         </TouchableOpacity>
       </View>
-      <View className='pt-5'>
-        <View className='flex-row justify-between items-center'>
-        <Text className='text-xl font-semibold'>Promo & Discount</Text>
+      <View className='pt-5 flex-row justify-evenly'>
+       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-3 items-center justify-center gap-2'>
+       <Feather name="phone-call" size={24} color="#F79E1B" />
+        <Text className='text-[#e0e0e0]'>Airtime</Text>
+       </TouchableOpacity>
+       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-2 items-center justify-center gap-2'>
+       <MaterialIcons name="network-check" size={24} color="#F79E1B" />
+        <Text className='text-[#e0e0e0]'>Data</Text>
+       </TouchableOpacity>
+       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-2 items-center justify-center gap-2'>
+       <Fontisto name="lightbulb" size={24} color="#F79E1B" />
+        <Text className='text-[#e0e0e0] font-pregular'>Electricity</Text>
+       </TouchableOpacity>
+      </View>
+      <View className='py-5 flex-row justify-between items-center'>
+        <Text className='font-psemibold text-xl'>Recent Activity</Text>
+        <TouchableOpacity>
+          <Text className='font-pmedium text-lg text-[#F79E1B]'>See all</Text>
+        </TouchableOpacity>
+      </View>
+      <View>
+        <View className='items-center pt-5'>
+         <Text className='font-pextralight text-sm'>looks like the's no recent</Text>
+         <Text className='font-pextralight text-sm'>activity to share here.</Text>
+         <Text className='font-pextralight text-sm'>Make a transaction today</Text>
         </View>
-        <ScrollView
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          className="pt-5 flex-row"
-        >
-          {data.map((item, index) => (
-            <Image
-              source={item.uri}
-              key={index}
-              className="w-[280px] h-[180px] rounded-3xl mr-3"
-            />
-          ))}
-        </ScrollView>
       </View>
     </View>
   )

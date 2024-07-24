@@ -6,6 +6,7 @@ import images from '../../../constants/images'
 import { useColorScheme } from 'nativewind'
 import { SignOut } from '@/services/auth'
 import { Text, View } from '@/components/Themed'
+import { StatusBar } from 'expo-status-bar'
 
 const Profile = () => {
 
@@ -34,10 +35,11 @@ const Profile = () => {
   }
 
   return (
-    <SafeAreaView className='px-5 py-8 dark:bg-bgDarkPrimary'>
+    <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ---- Part 1---- */}
-        <View className='flex-row justify-between'>
+       <View className='px-5 py-8'>
+       <View className='flex-row justify-between'>
           <Text className='text-xl font-bold text-gray-400 dark:text-textPrimary'>Profile</Text>
           <TouchableOpacity>
           <FontAwesome6 name='bell' size={22}/>
@@ -87,7 +89,11 @@ const Profile = () => {
             <Text className='pl-5 font-bold dark:text-textPrimary'>Logout</Text>
           </TouchableOpacity>
         </View>
+       </View>
       </ScrollView>
+      <StatusBar
+        style={colorScheme === 'light' ? 'dark' : 'light'}
+      />
     </SafeAreaView>
   )
 }

@@ -9,6 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SignIn } from "@/services/auth";
 import { Text, View } from "@/components/Themed";
 import { useColorScheme } from "nativewind";
+import { StatusBar } from "expo-status-bar";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -73,6 +74,9 @@ const Login = () => {
           <Text className="text-[#FBBC05]">Sign Up</Text>
         </Link>
       </Text>
+      <StatusBar
+        style={colorScheme === 'light' ? 'dark' : 'light'}
+      />
     </View>
   );
 };
