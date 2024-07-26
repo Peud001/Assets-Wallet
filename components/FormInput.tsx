@@ -26,7 +26,7 @@ const FormInput = ({ control, name, isLoading, keyboardType, ...otherProps }: Fo
             name={name}
             render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
                 <View>
-                   <View className='mb-3 h-[50px] border flex-row items-center rounded-2xl p-3 focus:border-red-300'>
+                   <View className='mb-3 h-[50px] border flex-row items-center rounded-2xl p-3 focus:border-red-300 bg-white'>
                    <TextInput
                         value={value}
                         onChangeText={onChange}

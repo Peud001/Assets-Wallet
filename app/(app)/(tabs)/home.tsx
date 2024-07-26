@@ -1,5 +1,5 @@
 import { ScrollView} from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import Dashboard1 from '../../../components/Dashboard1'

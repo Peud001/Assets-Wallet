@@ -1,12 +1,15 @@
-import { ScrollView, TouchableOpacity, Image, Modal, ActivityIndicator } from "react-native";
-import React, { useState } from "react";
+import {
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign, Feather, Fontisto } from "@expo/vector-icons";
+import { AntDesign, EvilIcons, Feather, FontAwesome, FontAwesome6, Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { useGetContactsQuery } from "@/features/slice/apiSlice";
-import images from "@/constants/images";
-import KeyPad from "@/components/keyPad";
 import { Text, View } from "@/components/Themed";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/services/auth";
@@ -16,6 +19,11 @@ import { useAppDispatch, useAppSelector } from "@/features/store/Hooks";
 import { BalanceType, fetchBalance } from "@/features/slice/balanceSlice";
 import { fetchTransferHistory } from "@/features/slice/statSlice";
 import { StatusBar } from "expo-status-bar";
+import { SelectList } from "react-native-dropdown-select-list";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
+import { TextInput } from "react-native";
 
 type ContactType = {
   image: string;
@@ -24,115 +32,105 @@ type ContactType = {
   accountNumber: string;
 };
 
-const SendMoney = () => {
-  const navigate = useNavigation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [amount, setAmount] = useState("");
-  const [isVisible, setIsVisible] = useState(false);
-  const [beneficiary, setBeneficiary] = useState<ContactType | null>(null);
-  const [showModal, setShowModal] = useState(false);
+const formSchema = z.object({
+  accountNumber: z
+    .string()
+    .min(10, "Account number is required")
+    .max(10, "Account number must be 10 numbers"),
+  amount: z
+    .string()
+    .min(1, "Amount is required")
+    .max(10, "Amount is out of range"),
+});
 
+const SendMoney = () => {
   const { colorScheme } = useColorScheme();
   const dispatch = useAppDispatch();
 
-  const { data, error, isLoading } = useGetContactsQuery();
-  const balance = useAppSelector((state) => state.balance.balance as BalanceType[]);
+  const [selectedBank, setSelectedBank] = useState("");
+  const navigate = useNavigation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [beneficiaryAccount, setBeneficiaryAccount] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [banks, setBanks] = useState([]);
+
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      accountNumber: "",
+      amount: "",
+    },
+    resolver: zodResolver(formSchema),
+  });
+
+  const balance = useAppSelector(
+    (state) => state.balance.balance as BalanceType[]
+  );
   const currentBalance = balance[0]?.balance ?? 0;
 
   const currentDate = new Date();
-  const formattedDateManual = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+  const formattedDateManual = `${currentDate.getDate()}-${
+    currentDate.getMonth() + 1
+  }-${currentDate.getFullYear()}`;
   const timeString = currentDate.toLocaleTimeString();
 
-  const handleSubmit = async () => {
-    if (!beneficiary) {
-      Toast.show("Select a beneficiary", { duration: Toast.durations.LONG });
-      return;
-    }
-    if (!amount) {
-      Toast.show("Enter an amount", { duration: Toast.durations.LONG });
-      return;
-    }
-    if (parseFloat(amount) > currentBalance) {
-      Toast.show("Insufficient funds", { duration: Toast.durations.LONG });
-      return;
-    }
+  useEffect(() => {
+    const getBanks = async () => {
+      try {
+        const res = await fetch("https://nigerianbanks.xyz");
+        if (!res.ok) {
+          Toast.show("Failed! Please try again", {
+            duration: Toast.durations.LONG,
+          });
+        }
+        const data = await res.json();
+        const bankData = data.map((item: any, index: number) => ({
+          key: index,
+          value: item.name,
+        }));
+        setBanks(bankData);
+      } catch (error) {
+        console.error("Failed to fetch banks:", error);
+      }
+    };
 
-    setIsSubmitting(true);
+    getBanks();
+  }, []);
+
+  const handlePress = async (data: any) => {
+    if (selectedBank === ''){
+      Toast.show("Select bank", {
+        duration: Toast.durations.LONG,
+      });
+      return
+    }
+    setIsSubmitting((prev) => !prev);
     try {
+      const validatedData = formSchema.parse(data);
+      setAmount(validatedData.amount);
+      setBeneficiaryAccount(validatedData.accountNumber);
       await addDoc(collection(firebaseDb, "statData"), {
-        firstName: `Transfer to ${beneficiary.firstName}`,
-        lastName: beneficiary.lastName,
-        amount: amount,
+        accounNumber: `Transfer to ${validatedData.accountNumber}`,
+        amount: parseFloat(validatedData.amount),
+        bank: selectedBank,
         date: formattedDateManual,
         time: timeString,
-        iconName: 'arrow-alt-circle-left',
-        iconColor: '#F57C7C'
+        iconName: "arrow-alt-circle-left",
+        iconColor: "#F57C7C",
       });
       await updateDoc(doc(firebaseDb, "balance", "amount"), {
-        balance: currentBalance - parseFloat(amount),
+        balance: currentBalance - parseFloat(validatedData.amount),
       });
       dispatch(fetchBalance());
       dispatch(fetchTransferHistory());
       setShowModal(true);
+      reset();
     } catch (err) {
-      Toast.show("Failed - please try again", { duration: Toast.durations.LONG });
+      Toast.show("Failed - please try again", {
+        duration: Toast.durations.LONG,
+      });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const handlePress = (data: string) => {
-    if (data === "delete") {
-      setAmount(amount.slice(0, -1));
-    } else if (data === "." && amount.includes(".")) {
-      return;
-    } else {
-      setAmount(amount + data);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setIsVisible(!isVisible);
-  };
-
-  const handleSelect = (item: ContactType) => {
-    setBeneficiary(item);
-    setIsVisible(false);
-  };
-
-  const renderDropdown = () => {
-    if (isVisible) {
-      return (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          className="top-[130px] px-3 absolute h-[70%] bg-white w-full rounded-2x self-center rounded-2xl"
-          style={{ zIndex: 1000 }}
-        >
-          <View className="py-2">
-            {data &&
-              data.map((item) => (
-                <TouchableOpacity
-                  onPress={() => handleSelect(item)}
-                  key={item.id}
-                  className="flex-row items-center py-2 "
-                >
-                  <Image
-                    source={{ uri: item.image }}
-                    className="w-[40px] h-[40px] rounded-full"
-                  />
-                  <View className="pl-3">
-                    <Text className="font-bold text-[16px] text-black">
-                      {item.firstName} {item.lastName}
-                    </Text>
-                    <Text className="text-black">
-                      Bank - {item.accountNumber}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-          </View>
-        </ScrollView>
-      );
     }
   };
 
@@ -150,7 +148,7 @@ const SendMoney = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    setBeneficiary(null);
+    setBeneficiaryAccount('');
     setAmount("");
   };
 
@@ -162,38 +160,31 @@ const SendMoney = () => {
             <View className="bg-white p-5 rounded-lg w-[90%]">
               <View className="items-center my-5">
                 <Feather name="check-circle" size={50} color="green" />
-                <Text className="mt-5 font-bold text-xl">
+                <Text className="mt-5 font-pbold text-xl text-black">
                   Transfer Successful
                 </Text>
-                <Text className="text-[#a0a0a0]">
+                <Text className="text-[#a0a0a0] font-pregular text-center text-[#333]">
                   Your money has been transferred successfully
                 </Text>
               </View>
-              <View className="flex-row justify-between my-5">
-                <Text className="text-[#a0a0a0]">Transfer Amount</Text>
-                <Text className="font-bold">${parseFloat(amount).toFixed(2)}</Text>
+              <View className="flex-row justify-between items-center my-5">
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">
+                  Transfer Amount
+                </Text>
+                <Text className="font-psemibold text-[#333]">
+                  ${parseFloat(amount).toFixed(2)}
+                </Text>
               </View>
-              <View className="mb-5 border border-[#e0e0e0] p-2 rounded-2xl">
-                {beneficiary && (
-                  <View className="flex-row items-center">
-                    <Image
-                      source={{ uri: beneficiary.image }}
-                      className="w-[40px] h-[40px] rounded-full"
-                    />
-                    <View className="pl-3">
-                      <Text className="font-bold text-[16px]">
-                        {beneficiary.firstName} {beneficiary.lastName}
-                      </Text>
-                      <Text className="text-[#b0b0b0]">
-                        Bank - {beneficiary.accountNumber}
-                      </Text>
-                    </View>
-                  </View>
-                )}
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="font-plight text-[#333]">Beneficiary</Text>
+                <View className="items-end">
+                  <Text className="text-[#333]">{beneficiaryAccount}</Text>
+                  <Text className="font-pextralight text-[#333]">- {selectedBank}</Text>
+                </View>
               </View>
-              <View className="flex-row justify-between mb-5">
-                <Text className="text-[#a0a0a0]">Date & time</Text>
-                <Text>{formatDate(new Date())}</Text>
+              <View className="flex-row items-center justify-between mb-5">
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">Date & time</Text>
+                <Text className="text-[#333]">{formatDate(new Date())}</Text>
               </View>
               <TouchableOpacity
                 className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mb-5"
@@ -205,12 +196,13 @@ const SendMoney = () => {
             </View>
           </View>
         </Modal>
-
         <View className="px-3">
           <View className="flex-row align-center px-3 my-10">
             <TouchableOpacity
               onPress={() =>
-                navigate.canGoBack() ? navigate.goBack() : router.replace("home")
+                navigate.canGoBack()
+                  ? navigate.goBack()
+                  : router.replace("home")
               }
               accessibilityLabel="Go back"
             >
@@ -220,63 +212,91 @@ const SendMoney = () => {
                 color={colorScheme === "light" ? "black" : "white"}
               />
             </TouchableOpacity>
-            <Text className="text-center flex-1 text-3xl">Send Money</Text>
-          </View>
-
-          {renderDropdown()}
-
-          <View>
-            <Text className="text-[#c0c0c0] font-bold m-1">Select a beneficiary</Text>
-            <TouchableOpacity
-              onPress={toggleDropdown}
-              className="border border-[#e0e0e0] h-[60px] flex-row items-center p-2 rounded-2xl"
-              accessibilityLabel="Select beneficiary"
-            >
-              <Image
-                source={beneficiary ? { uri: beneficiary.image } : images.user}
-                className="w-[40px] h-[40px] rounded-full"
-              />
-              <View className="pl-3 w-[90%] flex-row items-center justify-between">
-                <View>
-                  <Text className="font-bold text-[16px]">
-                    {beneficiary
-                      ? `${beneficiary.firstName} ${beneficiary.lastName}`
-                      : "John Doe"}
-                  </Text>
-                  <Text className="text-[#b0b0b0]">
-                    Bank - {beneficiary ? beneficiary.accountNumber : "xxxxxxxxxx"}
-                  </Text>
-                </View>
-                <AntDesign name={isVisible ? "up" : "down"} size={20} color="black" />
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          <View className="mt-7 items-center w-full">
-            <Text className="font-bold text-3xl w-full text-center">
-              $ {amount ? parseFloat(amount).toFixed(2) : "0.00"}
+            <Text className="text-center flex-1 text-3xl font-psemibold">
+              Send Money
             </Text>
           </View>
 
-          <View className="pt-7">
-            <KeyPad onPress={handlePress} />
+          <View className="pt-7"></View>
+
+          <View className="my-5">
+            <SelectList
+              setSelected={(val: React.SetStateAction<string>) =>
+                setSelectedBank(val)
+              }
+              data={banks}
+              save="value"
+              placeholder="Select Bank"
+              dropdownTextStyles={{
+                color: colorScheme === "light" ? "#333" : "#c0c0c0",
+              }}
+              inputStyles={{
+                color: colorScheme === "light" ? "#333" : "#c0c0c0",
+              }}
+              searchicon = {<EvilIcons name="search" size={20} color={colorScheme === "light" ? "#333" : "#c0c0c0"}/>}
+              closeicon = {<AntDesign name="closecircleo" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />}
+              arrowicon={<FontAwesome6 name="angle-down" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />}
+            />
           </View>
 
+          <Controller
+            control={control}
+            name="accountNumber"
+            render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
+              <View className="my-5">
+                <TextInput
+                  placeholder="Enter account number"
+                  placeholderTextColor={colorScheme==='light'? '#333' : '#c0c0c0'}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-[${colorScheme === "light" ? "#333" : "#c0c0c0"}]`}
+                  keyboardType="numeric"
+                />
+                {error && (
+                  <Text className="text-red-600 mt-1">{error.message}</Text>
+                )}
+              </View>
+            )}
+          />
+          <Controller
+            control={control}
+            name="amount"
+            render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
+              <View className="my-5">
+                <TextInput
+                placeholder="Enter amount"
+                placeholderTextColor={colorScheme==='light'? '#333' : '#c0c0c0'}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-[${colorScheme === "light" ? "#333" : "#c0c0c0"}]`}
+                keyboardType="numeric"
+              />
+              {error && (
+                  <Text className="text-red-600 mt-1">{error.message}</Text>
+                )}
+              </View>
+            )}
+          />
+
           <TouchableOpacity
-            onPress={handleSubmit}
-            className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mt-3"
+            onPress={handleSubmit(handlePress)}
+            className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mt-5"
             disabled={isSubmitting}
             accessibilityLabel="Submit transfer"
           >
             <Text className="font-bold text-white text-xl">
-              {isSubmitting ? <ActivityIndicator size="large" color="#fff" /> : "Continue"}
+              {isSubmitting ? (
+                <ActivityIndicator size="large" color="#fff" />
+              ) : (
+                "Send"
+              )}
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <StatusBar
-        style={colorScheme === 'light' ? 'dark' : 'light'}
-      />
+      <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
     </SafeAreaView>
   );
 };

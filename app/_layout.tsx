@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useColorScheme } from "nativewind";
-import AuthProvider, { AuthContext } from "@/providers/authProvider";
+import AuthProvider from "@/providers/authProvider";
 import { RootSiblingParent } from 'react-native-root-siblings';
 import "../global.css";
 import { useFonts } from 'expo-font';
@@ -23,7 +23,6 @@ const RootLayout = () => {
   });
 
   const { colorScheme } = useColorScheme();
-  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     if (error) {

@@ -5,6 +5,7 @@ import images from '../constants/images'
 import { Link, router } from 'expo-router'
 import { Text, View } from './Themed'
 import { useColorScheme } from 'nativewind'
+import UtilityCard from './utilityCard'
 
 const Dashboard3 = () => {
 
@@ -28,18 +29,9 @@ const Dashboard3 = () => {
         </TouchableOpacity>
       </View>
       <View className='pt-5 flex-row justify-evenly'>
-       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-3 items-center justify-center gap-2'>
-       <Feather name="phone-call" size={24} color="#F79E1B" />
-        <Text className='text-[#e0e0e0]'>Airtime</Text>
-       </TouchableOpacity>
-       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-2 items-center justify-center gap-2'>
-       <MaterialIcons name="network-check" size={24} color="#F79E1B" />
-        <Text className='text-[#e0e0e0]'>Data</Text>
-       </TouchableOpacity>
-       <TouchableOpacity className='bg-[#1D1F2B] w-1/4 h-[80px] rounded-2xl p-2 items-center justify-center gap-2'>
-       <Fontisto name="lightbulb" size={24} color="#F79E1B" />
-        <Text className='text-[#e0e0e0] font-pregular'>Electricity</Text>
-       </TouchableOpacity>
+       <UtilityCard/>
+       <UtilityCard/>
+       <UtilityCard/>
       </View>
       <View className='py-5 flex-row justify-between items-center'>
         <Text className='font-psemibold text-xl'>Recent Activity</Text>
@@ -49,9 +41,10 @@ const Dashboard3 = () => {
       </View>
       <View>
         <View className='items-center pt-5'>
+          <Image source={images.emoji} className='w-[50px] h-[50px]'/>
          <Text className='font-pextralight text-sm'>looks like the's no recent</Text>
          <Text className='font-pextralight text-sm'>activity to share here.</Text>
-         <Text className='font-pextralight text-sm'>Make a transaction today</Text>
+         <Text className='font-plight text-sm'>Make a transaction today</Text>
         </View>
       </View>
     </View>

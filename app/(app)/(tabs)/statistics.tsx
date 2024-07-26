@@ -55,7 +55,7 @@ const Statistics = () => {
                   <View className="flex-row items-center gap-2">
                     <FontAwesome6 name={item.iconName} size={24} color={item.iconColor} />
                     <View>
-                      <Text className="font-bold text-lg">{item.firstName} {item.lastName}</Text>
+                      <Text className="font-bold text-lg">{item.accounNumber}</Text>
                       <Text>{item.date} - {item.time}</Text>
                     </View>
                   </View>

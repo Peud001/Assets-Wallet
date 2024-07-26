@@ -1,4 +1,3 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
 import { FontAwesome6 } from '@expo/vector-icons'
@@ -37,12 +36,12 @@ const TabsLayout = () => {
           tabBarIcon: ({color}) => <MaterialIcons name="insert-chart" size={28} color={color} />
         }}
         />
-        <Tabs.Screen
+        {/* <Tabs.Screen
         name='contact'
         options={{
           tabBarIcon: ({color}) => <MaterialIcons name="contact-page" size={28} color={color} />
         }}
-        />
+        /> */}
         <Tabs.Screen
         name='profile'
         options={{

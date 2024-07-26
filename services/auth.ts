@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassword, signOut, getReactNativePersistence} from "firebase/auth";
+import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassword, signOut, getReactNativePersistence, updateProfile} from "firebase/auth";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from "firebase/app";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -50,8 +50,13 @@ export const SignIn = async ({ email, password }: SignInType) => {
 export const SignUp = async ({ firstName, lastName, email, password }: SignUpType) => {
   try {
     const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
-    await AsyncStorage.setItem('user', JSON.stringify({firstName, lastName}))
-    return userCredentials.user;
+    const user = userCredentials.user
+    if (user) {
+      await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+    }
+    return user;
   } catch (error) {
     return error;
   }
