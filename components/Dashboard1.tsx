@@ -1,18 +1,29 @@
 import { Image, TouchableOpacity } from 'react-native'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Feather, MaterialIcons} from '@expo/vector-icons'
 import images from '../constants/images'
 import { useColorScheme } from 'nativewind'
 import ThemeToggle from './ThemeToggle'
 import { Text, View } from './Themed'
 import { AuthContext } from '@/providers/authProvider'
+import { useAppDispatch } from '@/features/store/Hooks'
+import { fetchBalance } from '@/features/slice/balanceSlice'
+import { fetchTransferHistory } from '@/features/slice/statSlice'
 
 
 const Dashboard1 = () => {
 
+  const dispatch = useAppDispatch()
+
   const {colorScheme} = useColorScheme()
   const { user } = useContext(AuthContext);
-  console.log(user?.photoURL)
+
+  useEffect(()=>{
+    if(user){
+      dispatch(fetchBalance(user.uid))
+      dispatch(fetchTransferHistory(user.uid))
+    }
+  },[])
   
   return (
         <View className='flex-row items-center justify-between'>

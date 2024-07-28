@@ -1,18 +1,28 @@
 import { TouchableOpacity, Image, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Feather, FontAwesome6, Fontisto, MaterialIcons } from '@expo/vector-icons'
 import images from '../constants/images'
 import { Link, router } from 'expo-router'
 import { Text, View } from './Themed'
 import { useColorScheme } from 'nativewind'
 import UtilityCard from './utilityCard'
+import { useAppDispatch, useAppSelector } from '@/features/store/Hooks'
+import { fetchTransferHistory } from '@/features/slice/statSlice'
+import { AuthContext } from '@/providers/authProvider'
 
 const Dashboard3 = () => {
 
-  const data = [
-    {uri: images.promo1},
-    {uri: images.promo2}
-  ]
+  const {user} = useContext(AuthContext)
+
+  const dispatch = useAppDispatch()
+
+  const transactionHistory = useAppSelector(state => state.stat.transferHistory)
+
+  useEffect(()=>{
+    if(user){
+      dispatch(fetchTransferHistory(user.uid))
+    }
+  },[])
 
   const {colorScheme} = useColorScheme()
 
@@ -40,12 +50,31 @@ const Dashboard3 = () => {
         </TouchableOpacity>
       </View>
       <View>
-        <View className='items-center pt-5'>
+       {
+        transactionHistory.length > 0 ? (
+          <View>
+              {transactionHistory.slice(0, 4).map((item: any, index: number) => (
+                <View key={index} className="flex-row items-center justify-between mb-5">
+                  <View className="flex-row items-center gap-2">
+                    <FontAwesome6 name={item.iconName} size={24} color={item.iconColor} />
+                    <View>
+                      <Text className="font-bold text-lg">{item.title}</Text>
+                      <Text>{item.date} - {item.time}</Text>
+                    </View>
+                  </View>
+                  <Text  className={`text-lg font-psemibold text-xl ${item.title === "Added to wallet" ? 'text-green-700' : 'text-red-600'}`}>{item.amount}</Text>
+                </View>
+              ))}
+            </View>
+        ) : (
+          <View className='items-center pt-5'>
           <Image source={images.emoji} className='w-[50px] h-[50px]'/>
          <Text className='font-pextralight text-sm'>looks like the's no recent</Text>
          <Text className='font-pextralight text-sm'>activity to share here.</Text>
          <Text className='font-plight text-sm'>Make a transaction today</Text>
         </View>
+        )
+       }
       </View>
     </View>
   )

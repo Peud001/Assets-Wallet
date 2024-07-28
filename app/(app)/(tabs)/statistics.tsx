@@ -12,8 +12,8 @@ import { useColorScheme } from "nativewind";
 const Statistics = () => {
   const {colorScheme} = useColorScheme()
   const transferHistory = useAppSelector(state => state.stat.transferHistory);
-  const balance = useAppSelector(state => state.balance.balance as BalanceType[]);
-  const totalBalance = balance.length > 0 ? balance[0].balance : 0;
+  const balance = useAppSelector(state => state.balance.balance);
+  const totalBalance = balance ? balance[0].balance : 0;
 
   const [totalExpense, setTotalExpense] = useState(0);
 

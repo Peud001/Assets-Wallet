@@ -5,6 +5,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        green : 'green',
+        red : 'red',
         primary: {
           DEFAULT: "var(--color-primary-default)",
           light: "var(--color-primary-light)",
