@@ -90,7 +90,7 @@ const TopUp = () => {
             color={colorScheme === "light" ? "black" : "white"}
           />
         </TouchableOpacity>
-        <View className="w-[90%] items-center">
+        <View className="w-[86%] items-center">
           <Text className="font-bold text-3xl">Top Up</Text>
           <Text className="mt-3 mb-5">Add funds to your wallet</Text>
         </View>

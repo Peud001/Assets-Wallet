@@ -45,7 +45,9 @@ const Dashboard3 = () => {
       </View>
       <View className='py-5 flex-row justify-between items-center'>
         <Text className='font-psemibold text-xl'>Recent Activity</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+        onPress={() => router.replace('/history')}
+        >
           <Text className='font-pmedium text-lg text-[#F79E1B]'>See all</Text>
         </TouchableOpacity>
       </View>
