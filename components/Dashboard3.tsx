@@ -9,6 +9,7 @@ import UtilityCard from './utilityCard'
 import { useAppDispatch, useAppSelector } from '@/features/store/Hooks'
 import { fetchTransferHistory } from '@/features/slice/statSlice'
 import { AuthContext } from '@/providers/authProvider'
+import { fetchBalance } from '@/features/slice/balanceSlice'
 
 const Dashboard3 = () => {
 
@@ -21,6 +22,7 @@ const Dashboard3 = () => {
   useEffect(()=>{
     if(user){
       dispatch(fetchTransferHistory(user.uid))
+      dispatch(fetchBalance(user.uid))
     }
   },[])
 
@@ -39,9 +41,9 @@ const Dashboard3 = () => {
         </TouchableOpacity>
       </View>
       <View className='pt-5 flex-row justify-evenly'>
-       <UtilityCard/>
-       <UtilityCard/>
-       <UtilityCard/>
+       <UtilityCard label={'Airtime'} iconName={'phone'}/>
+       <UtilityCard label={'Data'} iconName={'network'}/>
+       <UtilityCard label={'Electricity'} iconName={'light-bulb'}/>
       </View>
       <View className='py-5 flex-row justify-between items-center'>
         <Text className='font-psemibold text-xl'>Recent Activity</Text>

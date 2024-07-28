@@ -21,7 +21,7 @@ const TopUp = () => {
   const dispatch = useAppDispatch();
 
   const accountBalance = useAppSelector((state) => state.balance.balance);
-
+  console.log(accountBalance)
   const [balance, setBalance] = useState<any>(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,7 +51,6 @@ const TopUp = () => {
       time: new Date().toLocaleTimeString(),
       iconName: "arrow-alt-circle-right",
       iconColor: "green",
-      amountColor: 'text-green-800',
       uid: user.uid,
       timestamp: serverTimestamp(),
     };

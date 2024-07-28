@@ -1,36 +1,29 @@
 import {
   ScrollView,
   TouchableOpacity,
-  Image,
   Modal,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AntDesign, EvilIcons, Feather, FontAwesome, FontAwesome6, Fontisto } from "@expo/vector-icons";
+import { AntDesign, EvilIcons, Feather, FontAwesome6, Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/services/auth";
 import Toast from "react-native-root-toast";
 import { useColorScheme } from "nativewind";
 import { useAppDispatch, useAppSelector } from "@/features/store/Hooks";
-import { BalanceType, fetchBalance } from "@/features/slice/balanceSlice";
-import { fetchTransferHistory } from "@/features/slice/statSlice";
+import { fetchBalance } from "@/features/slice/balanceSlice";
 import { StatusBar } from "expo-status-bar";
 import { SelectList } from "react-native-dropdown-select-list";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { TextInput } from "react-native";
-
-type ContactType = {
-  image: string;
-  firstName: string;
-  lastName: string;
-  accountNumber: string;
-};
+import { AuthContext } from "@/providers/authProvider";
+import { fetchTransferHistory } from "@/features/slice/statSlice";
 
 const formSchema = z.object({
   accountNumber: z
@@ -44,17 +37,18 @@ const formSchema = z.object({
 });
 
 const SendMoney = () => {
+  const { user } = useContext(AuthContext);
   const { colorScheme } = useColorScheme();
   const dispatch = useAppDispatch();
-
-  const [selectedBank, setSelectedBank] = useState("");
   const navigate = useNavigation();
+  const [selectedBank, setSelectedBank] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [amount, setAmount] = useState("");
   const [beneficiaryAccount, setBeneficiaryAccount] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [banks, setBanks] = useState([]);
-
+  const balance = useAppSelector((state) => state.balance.balance);
+  const currentBalance = balance ? balance.balance : 0;
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       accountNumber: "",
@@ -63,25 +57,13 @@ const SendMoney = () => {
     resolver: zodResolver(formSchema),
   });
 
-  const balance = useAppSelector(
-    (state) => state.balance.balance as BalanceType[]
-  );
-  const currentBalance = balance[0]?.balance ?? 0;
-
-  const currentDate = new Date();
-  const formattedDateManual = `${currentDate.getDate()}-${
-    currentDate.getMonth() + 1
-  }-${currentDate.getFullYear()}`;
-  const timeString = currentDate.toLocaleTimeString();
-
   useEffect(() => {
     const getBanks = async () => {
       try {
         const res = await fetch("https://nigerianbanks.xyz");
         if (!res.ok) {
-          Toast.show("Failed! Please try again", {
-            duration: Toast.durations.LONG,
-          });
+          Toast.show("Failed! Please try again", { duration: Toast.durations.LONG });
+          return;
         }
         const data = await res.json();
         const bankData = data.map((item: any, index: number) => ({
@@ -97,44 +79,50 @@ const SendMoney = () => {
     getBanks();
   }, []);
 
-  const handlePress = async (data: any) => {
-    if (selectedBank === ''){
-      Toast.show("Select bank", {
-        duration: Toast.durations.LONG,
-      });
-      return
+  const handlePress = async (data) => {
+    if (!selectedBank) {
+      Toast.show("Select bank", { duration: Toast.durations.LONG });
+      return;
     }
-    setIsSubmitting((prev) => !prev);
+    if (!user) {
+      Toast.show("User is not authenticated.", { duration: Toast.durations.LONG });
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const validatedData = formSchema.parse(data);
       setAmount(validatedData.amount);
       setBeneficiaryAccount(validatedData.accountNumber);
-      await addDoc(collection(firebaseDb, "statData"), {
-        accounNumber: `Transfer to ${validatedData.accountNumber}`,
-        amount: parseFloat(validatedData.amount),
-        bank: selectedBank,
-        date: formattedDateManual,
-        time: timeString,
+      await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), {
+        title: `Transfer to ${validatedData.accountNumber}`,
+        amount: `-₦${parseFloat(validatedData.amount)}`,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
         iconName: "arrow-alt-circle-left",
         iconColor: "#F57C7C",
+        uid: user.uid,
+        timestamp: serverTimestamp(),
       });
-      await updateDoc(doc(firebaseDb, "balance", "amount"), {
-        balance: currentBalance - parseFloat(validatedData.amount),
-      });
-      dispatch(fetchBalance());
-      dispatch(fetchTransferHistory());
+      await setDoc(doc(firebaseDb, "balance", user.uid), { balance: currentBalance - parseFloat(validatedData.amount)});
+      dispatch(fetchBalance(user.uid));
+      dispatch(fetchTransferHistory(user.uid));
       setShowModal(true);
       reset();
     } catch (err) {
-      Toast.show("Failed - please try again", {
-        duration: Toast.durations.LONG,
-      });
+      console.error(err);
+      Toast.show("Failed - please try again", { duration: Toast.durations.LONG });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const formatDate = (date: any) => {
+  const closeModal = () => {
+    setShowModal(false);
+    setBeneficiaryAccount("");
+    setAmount("");
+  };
+
+  const formatDate = (date) => {
     const options = {
       day: "2-digit",
       month: "short",
@@ -146,12 +134,6 @@ const SendMoney = () => {
     return date.toLocaleString("en-US", options).replace(",", "");
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setBeneficiaryAccount('');
-    setAmount("");
-  };
-
   return (
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -160,17 +142,13 @@ const SendMoney = () => {
             <View className="bg-white p-5 rounded-lg w-[90%]">
               <View className="items-center my-5">
                 <Feather name="check-circle" size={50} color="green" />
-                <Text className="mt-5 font-pbold text-xl text-black">
-                  Transfer Successful
-                </Text>
+                <Text className="mt-5 font-pbold text-xl text-black">Transfer Successful</Text>
                 <Text className="text-[#a0a0a0] font-pregular text-center text-[#333]">
                   Your money has been transferred successfully
                 </Text>
               </View>
               <View className="flex-row justify-between items-center my-5">
-                <Text className="text-[#a0a0a0] font-plight text-[#333]">
-                  Transfer Amount
-                </Text>
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">Transfer Amount</Text>
                 <Text className="font-psemibold text-[#333]">
                   ${parseFloat(amount).toFixed(2)}
                 </Text>
@@ -199,11 +177,7 @@ const SendMoney = () => {
         <View className="px-3">
           <View className="flex-row align-center px-3 my-10">
             <TouchableOpacity
-              onPress={() =>
-                navigate.canGoBack()
-                  ? navigate.goBack()
-                  : router.replace("home")
-              }
+              onPress={() => (navigate.canGoBack() ? navigate.goBack() : router.replace("home"))}
               accessibilityLabel="Go back"
             >
               <Fontisto
@@ -212,18 +186,12 @@ const SendMoney = () => {
                 color={colorScheme === "light" ? "black" : "white"}
               />
             </TouchableOpacity>
-            <Text className="text-center flex-1 text-3xl font-psemibold">
-              Send Money
-            </Text>
+            <Text className="text-center flex-1 text-3xl font-psemibold">Send Money</Text>
           </View>
-
-          <View className="pt-7"></View>
 
           <View className="my-5">
             <SelectList
-              setSelected={(val: React.SetStateAction<string>) =>
-                setSelectedBank(val)
-              }
+              setSelected={setSelectedBank}
               data={banks}
               save="value"
               placeholder="Select Bank"
@@ -233,9 +201,15 @@ const SendMoney = () => {
               inputStyles={{
                 color: colorScheme === "light" ? "#333" : "#c0c0c0",
               }}
-              searchicon = {<EvilIcons name="search" size={20} color={colorScheme === "light" ? "#333" : "#c0c0c0"}/>}
-              closeicon = {<AntDesign name="closecircleo" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />}
-              arrowicon={<FontAwesome6 name="angle-down" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />}
+              searchicon={
+                <EvilIcons name="search" size={20} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
+              }
+              closeicon={
+                <AntDesign name="closecircleo" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
+              }
+              arrowicon={
+                <FontAwesome6 name="angle-down" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
+              }
             />
           </View>
 
@@ -246,16 +220,14 @@ const SendMoney = () => {
               <View className="my-5">
                 <TextInput
                   placeholder="Enter account number"
-                  placeholderTextColor={colorScheme==='light'? '#333' : '#c0c0c0'}
+                  placeholderTextColor={colorScheme === "light" ? "#333" : "#c0c0c0"}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-[${colorScheme === "light" ? "#333" : "#c0c0c0"}]`}
+                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-${colorScheme === "light" ? "#333" : "#c0c0c0"}`}
                   keyboardType="numeric"
                 />
-                {error && (
-                  <Text className="text-red-600 mt-1">{error.message}</Text>
-                )}
+                {error && <Text className="text-red-600 mt-1">{error.message}</Text>}
               </View>
             )}
           />
@@ -265,17 +237,15 @@ const SendMoney = () => {
             render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
               <View className="my-5">
                 <TextInput
-                placeholder="Enter amount"
-                placeholderTextColor={colorScheme==='light'? '#333' : '#c0c0c0'}
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-[${colorScheme === "light" ? "#333" : "#c0c0c0"}]`}
-                keyboardType="numeric"
-              />
-              {error && (
-                  <Text className="text-red-600 mt-1">{error.message}</Text>
-                )}
+                  placeholder="Enter amount"
+                  placeholderTextColor={colorScheme === "light" ? "#333" : "#c0c0c0"}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-${colorScheme === "light" ? "#333" : "#c0c0c0"}`}
+                  keyboardType="numeric"
+                />
+                {error && <Text className="text-red-600 mt-1">{error.message}</Text>}
               </View>
             )}
           />
@@ -287,11 +257,7 @@ const SendMoney = () => {
             accessibilityLabel="Submit transfer"
           >
             <Text className="font-bold text-white text-xl">
-              {isSubmitting ? (
-                <ActivityIndicator size="large" color="#fff" />
-              ) : (
-                "Send"
-              )}
+              {isSubmitting ? <ActivityIndicator size="large" color="#fff" /> : "Send"}
             </Text>
           </TouchableOpacity>
         </View>

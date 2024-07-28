@@ -4,7 +4,7 @@ import {vars} from 'nativewind'
 export default {
     light: vars({
     "--color-primary-default": "#1F1F1F",
-    "--color-primary-light": "#e0e0e0",
+    "--color-primary-light": "#EDEDED",
     "--color-secondary-default": "#9b6cca",
     "--color-secondary-light": "#dfbeff",
     "--color-tertiary-default": "#ff88bd",
@@ -18,7 +18,7 @@ export default {
     "--color-overlay": "rgba(0, 0, 0, .05)",
     }),
     dark: vars({
-        "--color-primary-default": "#e0e0e0",
+        "--color-primary-default": "#EDEDED",
         "--color-primary-light": "#1F1F1F",
         "--color-secondary-default": "#9b6cca",
         "--color-secondary-light": "#dfbeff",

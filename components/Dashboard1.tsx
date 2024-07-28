@@ -40,7 +40,7 @@ const Dashboard1 = () => {
           <View className='flex-row items-center gap-2'>
           <Text className='text-xl font-pmedium'>Hello</Text>
           <Text className='text-xl font-pbold'>{user?.displayName?.split(" ")[0]}</Text>
-          <MaterialIcons name="waving-hand" size={20} color='#C7BA2F' />
+          <MaterialIcons name="waving-hand" size={20} color='#F79E1B' />
           </View>
           </View>
         <View className='flex-row items-center'>
