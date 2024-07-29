@@ -22,7 +22,7 @@ const TopUp = () => {
 
   const accountBalance = useAppSelector((state) => state.balance.balance);
   console.log(accountBalance)
-  const [balance, setBalance] = useState<any>(0);
+  const [balance, setBalance] = useState<any>();
   const [isLoading, setIsLoading] = useState(false);
 
   const { colorScheme } = useColorScheme();
@@ -38,6 +38,12 @@ const TopUp = () => {
         duration: Toast.durations.LONG,
       });
       return;
+    }
+    if(!balance) {
+      Toast.show("Enter Amount", {
+        duration: Toast.durations.LONG,
+      });
+      return
     }
 
     setIsLoading(true);
@@ -58,11 +64,12 @@ const TopUp = () => {
     try {
       await setDoc(doc(firebaseDb, "balance", user.uid), { balance: newBalance });
       await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), statData);
+      await addDoc(collection(firebaseDb, "allIncome", user.uid, "transactions"), {amount: balance});
 
       dispatch(fetchBalance(user.uid));
       dispatch(fetchTransferHistory(user.uid));
       setIsLoading(false);
-      setBalance(0);
+      setBalance('');
       Toast.show("Successful.", {
         duration: Toast.durations.LONG,
       });
@@ -98,7 +105,7 @@ const TopUp = () => {
         <TextInput
           placeholder="Enter Amount"
           keyboardType="numeric"
-          value={balance.toString()}
+          value={balance}
           onChangeText={handleChange}
           className="border bg-white w-full h-[60px] rounded-xl text-xl p-3 mb-5"
         />

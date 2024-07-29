@@ -117,7 +117,7 @@ const Profile = () => {
         {/* ---- Part 1---- */}
         <View className="px-5 py-8">
           <View className="flex-row justify-between">
-            <Text className="text-2xl font-pbold text-gray-400 dark:text-textPrimary">
+            <Text className="text-2xl font-psemibold text-gray-400 dark:text-textPrimary">
               Profile
             </Text>
             <TouchableOpacity>

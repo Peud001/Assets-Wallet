@@ -73,7 +73,7 @@ const Dashboard3 = () => {
         ) : (
           <View className='items-center pt-5'>
           <Image source={images.emoji} className='w-[50px] h-[50px]'/>
-         <Text className='font-pextralight text-sm'>looks like the's no recent</Text>
+         <Text className='font-pextralight text-sm pt-2'>looks like the's no recent</Text>
          <Text className='font-pextralight text-sm'>activity to share here.</Text>
          <Text className='font-plight text-sm'>Make a transaction today</Text>
         </View>

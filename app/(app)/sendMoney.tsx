@@ -103,6 +103,10 @@ const SendMoney = () => {
         uid: user.uid,
         timestamp: serverTimestamp(),
       });
+      await addDoc(collection(firebaseDb, "allExpense", user.uid, "transactions"), {amount: validatedData.amount});
+      await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), {
+        amount: parseFloat(validatedData.amount),
+      });
       await setDoc(doc(firebaseDb, "balance", user.uid), { balance: currentBalance - parseFloat(validatedData.amount)});
       dispatch(fetchBalance(user.uid));
       dispatch(fetchTransferHistory(user.uid));
