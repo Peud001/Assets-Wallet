@@ -1,3 +1,4 @@
+import ArrowBack from "@/components/ArrowBack";
 import { View, Text } from "@/components/Themed";
 import { BalanceType, fetchBalance } from "@/features/slice/balanceSlice";
 import { fetchTransferHistory } from "@/features/slice/statSlice";
@@ -85,17 +86,7 @@ const TopUp = () => {
   return (
     <SafeAreaView>
       <View className="flex-row items-center p-3">
-        <TouchableOpacity
-          onPress={() =>
-            navigate.canGoBack() ? navigate.goBack() : router.replace("home")
-          }
-        >
-          <Fontisto
-            name="angle-left"
-            size={20}
-            color={colorScheme === "light" ? "black" : "white"}
-          />
-        </TouchableOpacity>
+        <ArrowBack/>
         <View className="w-[86%] items-center">
           <Text className="font-bold text-3xl">Top Up</Text>
           <Text className="mt-3 mb-5">Add funds to your wallet</Text>

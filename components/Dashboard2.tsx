@@ -2,7 +2,7 @@ import { Image, View, Text } from 'react-native'
 import { useContext, useEffect } from 'react'
 import images from '@/constants/images'
 import { useAppDispatch, useAppSelector } from '@/features/store/Hooks'
-import { BalanceType, fetchBalance } from '@/features/slice/balanceSlice'
+import { BalanceType, fetchBalance, fetchPhoneNumber } from '@/features/slice/balanceSlice'
 import { AuthContext } from '@/providers/authProvider'
 import { fetchTransferHistory } from '@/features/slice/statSlice'
 
@@ -14,8 +14,15 @@ const Dashboard2 = () => {
   const dispatch = useAppDispatch()
 
   const accountBalance = useAppSelector(state => state.balance.balance)
+  const phone = useAppSelector(state => state.balance.phoneNumber)
 
   const balance = (accountBalance?.balance)?.toFixed(2) ?? '0.00'
+
+  useEffect(()=>{
+    if(user){
+      dispatch(fetchPhoneNumber(user.uid))
+    }
+  },[])
 
   return (
     <View className='w-full rounded-2xl shadow-sm items-center p-5 my-5 bg-[#1D1F2B]'>
@@ -31,7 +38,7 @@ const Dashboard2 = () => {
       </View>
       <View className='mt-20 w-full flex-row gap-2 items-center'>
         <Text className='text-[#c0c0c0] font-pextralight'>A/C No.</Text>
-        <Text className='text-[#c0c0c0] text-lg text-left font-plight'>3121460133</Text>
+        <Text className='text-[#c0c0c0] text-lg text-left font-plight'>{phone?.slice(1, -1)}</Text>
       </View>
     </View>
   )

@@ -10,7 +10,7 @@ import { AntDesign, EvilIcons, Feather, FontAwesome6, Fontisto } from "@expo/vec
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { addDoc, collection, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { firebaseDb } from "@/services/auth";
 import Toast from "react-native-root-toast";
 import { useColorScheme } from "nativewind";
@@ -31,9 +31,9 @@ const formSchema = z.object({
     .min(10, "Account number is required")
     .max(10, "Account number must be 10 numbers"),
   amount: z
-    .string()
+    .number()
     .min(1, "Amount is required")
-    .max(10, "Amount is out of range"),
+    .max(100000000, "Amount is out of range"),
 });
 
 const SendMoney = () => {
@@ -43,7 +43,7 @@ const SendMoney = () => {
   const navigate = useNavigation();
   const [selectedBank, setSelectedBank] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState('');
   const [beneficiaryAccount, setBeneficiaryAccount] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [banks, setBanks] = useState([]);
@@ -79,7 +79,7 @@ const SendMoney = () => {
     getBanks();
   }, []);
 
-  const handlePress = async (data) => {
+  const handlePress = async (data: any) => {
     if (!selectedBank) {
       Toast.show("Select bank", { duration: Toast.durations.LONG });
       return;
@@ -88,14 +88,18 @@ const SendMoney = () => {
       Toast.show("User is not authenticated.", { duration: Toast.durations.LONG });
       return;
     }
+    if (data.amount > currentBalance) {
+      Toast.show("Insufficient balance", { duration: Toast.durations.LONG });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const validatedData = formSchema.parse(data);
-      setAmount(validatedData.amount);
+      setAmount(validatedData.amount.toString());
       setBeneficiaryAccount(validatedData.accountNumber);
       await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), {
         title: `Transfer to ${validatedData.accountNumber}`,
-        amount: `-₦${parseFloat(validatedData.amount)}`,
+        amount: `-₦${validatedData.amount}`,
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString(),
         iconName: "arrow-alt-circle-left",
@@ -103,17 +107,17 @@ const SendMoney = () => {
         uid: user.uid,
         timestamp: serverTimestamp(),
       });
-      await addDoc(collection(firebaseDb, "allExpense", user.uid, "transactions"), {amount: validatedData.amount});
-      await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), {
-        amount: parseFloat(validatedData.amount),
+      await addDoc(collection(firebaseDb, "allExpense", user.uid, "transactions"), {
+        amount: validatedData.amount,
       });
-      await setDoc(doc(firebaseDb, "balance", user.uid), { balance: currentBalance - parseFloat(validatedData.amount)});
+      await setDoc(doc(firebaseDb, "balance", user.uid), {
+        balance: currentBalance - validatedData.amount,
+      });
       dispatch(fetchBalance(user.uid));
       dispatch(fetchTransferHistory(user.uid));
       setShowModal(true);
       reset();
     } catch (err) {
-      console.error(err);
       Toast.show("Failed - please try again", { duration: Toast.durations.LONG });
     } finally {
       setIsSubmitting(false);
@@ -126,18 +130,6 @@ const SendMoney = () => {
     setAmount("");
   };
 
-  const formatDate = (date) => {
-    const options = {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    };
-    return date.toLocaleString("en-US", options).replace(",", "");
-  };
-
   return (
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -146,15 +138,19 @@ const SendMoney = () => {
             <View className="bg-white p-5 rounded-lg w-[90%]">
               <View className="items-center my-5">
                 <Feather name="check-circle" size={50} color="green" />
-                <Text className="mt-5 font-pbold text-xl text-black">Transfer Successful</Text>
+                <Text className="mt-5 font-pbold text-xl text-black">
+                  Transfer Successful
+                </Text>
                 <Text className="text-[#a0a0a0] font-pregular text-center text-[#333]">
                   Your money has been transferred successfully
                 </Text>
               </View>
               <View className="flex-row justify-between items-center my-5">
-                <Text className="text-[#a0a0a0] font-plight text-[#333]">Transfer Amount</Text>
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">
+                  Transfer Amount
+                </Text>
                 <Text className="font-psemibold text-[#333]">
-                  ${parseFloat(amount).toFixed(2)}
+                  ₦{parseFloat(amount).toFixed(2)}
                 </Text>
               </View>
               <View className="flex-row justify-between items-center mb-5">
@@ -165,8 +161,10 @@ const SendMoney = () => {
                 </View>
               </View>
               <View className="flex-row items-center justify-between mb-5">
-                <Text className="text-[#a0a0a0] font-plight text-[#333]">Date & time</Text>
-                <Text className="text-[#333]">{formatDate(new Date())}</Text>
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">
+                  Date & time
+                </Text>
+                <Text className="text-[#333]">{new Date().toLocaleDateString()}</Text>
               </View>
               <TouchableOpacity
                 className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mb-5"
@@ -190,7 +188,9 @@ const SendMoney = () => {
                 color={colorScheme === "light" ? "black" : "white"}
               />
             </TouchableOpacity>
-            <Text className="text-center flex-1 text-3xl font-psemibold">Send Money</Text>
+            <Text className="text-center flex-1 text-3xl font-psemibold">
+              Send Money
+            </Text>
           </View>
 
           <View className="my-5">
@@ -199,21 +199,10 @@ const SendMoney = () => {
               data={banks}
               save="value"
               placeholder="Select Bank"
-              dropdownTextStyles={{
-                color: colorScheme === "light" ? "#333" : "#c0c0c0",
-              }}
-              inputStyles={{
-                color: colorScheme === "light" ? "#333" : "#c0c0c0",
-              }}
-              searchicon={
-                <EvilIcons name="search" size={20} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
-              }
-              closeicon={
-                <AntDesign name="closecircleo" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
-              }
-              arrowicon={
-                <FontAwesome6 name="angle-down" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />
-              }
+              dropdownTextStyles={{color: colorScheme === "light" ? "#333" : "#c0c0c0",}}
+              inputStyles={{color: colorScheme === "light" ? "#333" : "#c0c0c0",}}
+              searchicon={<EvilIcons name="search" size={20} color={colorScheme === "light" ? "#333" : "#c0c0c0"}/>}
+              closeicon={<FontAwesome6 name="times" size={24} color={colorScheme === "light" ? "#333" : "#c0c0c0"} />}
             />
           </View>
 
@@ -228,8 +217,9 @@ const SendMoney = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-${colorScheme === "light" ? "#333" : "#c0c0c0"}`}
+                  className='border h-[45px] rounded-xl border-[#a0a0a0] px-5'
                   keyboardType="numeric"
+                  style={{color: colorScheme === "light" ? "#333" : "#fff",}}
                 />
                 {error && <Text className="text-red-600 mt-1">{error.message}</Text>}
               </View>
@@ -243,11 +233,19 @@ const SendMoney = () => {
                 <TextInput
                   placeholder="Enter amount"
                   placeholderTextColor={colorScheme === "light" ? "#333" : "#c0c0c0"}
-                  value={value}
-                  onChangeText={onChange}
+                  value={value.toString()}
+                  onChangeText={(text) => {
+                    const parsedValue = parseFloat(text);
+                    if (!isNaN(parsedValue)) {
+                      onChange(parsedValue);
+                    } else {
+                      onChange(0);
+                    }
+                  }}
                   onBlur={onBlur}
-                  className={`border h-[45px] rounded-xl border-[#a0a0a0] px-5 text-${colorScheme === "light" ? "#333" : "#c0c0c0"}`}
+                  className='border h-[45px] rounded-xl border-[#a0a0a0] px-5'
                   keyboardType="numeric"
+                  style={{color: colorScheme === "light" ? "#333" : "#fff",}}
                 />
                 {error && <Text className="text-red-600 mt-1">{error.message}</Text>}
               </View>

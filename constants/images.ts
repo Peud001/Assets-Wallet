@@ -1,10 +1,11 @@
 import user from "../assets/images/user.jpg"
-import promo1 from '../assets/images/promo1.jpg'
-import promo2 from '../assets/images/promo2.jpg'
 import greenTick from '../assets/images/greenTick.png'
 import cardLogo from '../assets/images/cardLogo.jpg'
-import gif1 from '../assets/images/icongif.gif'
 import emoji from '../assets/images/emoji.gif'
+import mtn from '../assets/images/mtn.jpeg'
+import glo from '../assets/images/glo.jpeg'
+import airtel from '../assets/images/airtel.jpeg'
+import etisalat from '../assets/images/9mobile.jpeg'
 
 
-export default {user, promo1, promo2, greenTick, cardLogo, emoji}
+export default {user, greenTick, cardLogo, emoji, mtn, glo, airtel, etisalat}

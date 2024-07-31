@@ -1,6 +1,6 @@
 import { firebaseDb } from "@/services/auth";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, DocumentData, getDocs, orderBy, query } from "firebase/firestore";
 
 // Define the HistoryType type
 type HistoryType = {
@@ -41,12 +41,16 @@ export const fetchTransferHistory = createAsyncThunk<HistoryType[], string>(
 );
 
 interface InitialStateType {
+  totalIncome: DocumentData[]
+  totalExpense: DocumentData[]
   transferHistory: HistoryType[];
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: InitialStateType = {
+  totalIncome: [],
+  totalExpense: [],
   transferHistory: [],
   isLoading: false,
   error: null,
@@ -55,7 +59,15 @@ const initialState: InitialStateType = {
 const statSlice = createSlice({
   name: "stat",
   initialState,
-  reducers: {},
+  reducers: {
+    getTotalIncome(state, action: PayloadAction<DocumentData[]>){
+      state.totalIncome = action.payload
+    },
+    getTotalExpense(state, action: PayloadAction<DocumentData[]>){
+      state.totalExpense = action.payload
+    }
+
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTransferHistory.pending, (state) => {
@@ -77,3 +89,4 @@ const statSlice = createSlice({
 
 // Export the reducer
 export default statSlice.reducer;
+export const {getTotalExpense, getTotalIncome} = statSlice.actions

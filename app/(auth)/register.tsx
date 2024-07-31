@@ -16,6 +16,7 @@ const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
   lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
   email: z.string().min(1, 'Please enter a valid email').email('Invalid email address'),
+  phoneNumber: z.string().min(7, 'Please enter a valid phone number').max(11, 'Phone number must be 11 digit'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string().min(8, 'Password must be at least 8 characters long')
 }).refine(data => data.password === data.confirmPassword, {
@@ -27,6 +28,7 @@ type DataType = {
   firstName: string;
   lastName: string;
   email: string;
+  phoneNumber: string;
   password: string;
   confirmPassword: string;
 };
@@ -41,6 +43,7 @@ const Register = () => {
       firstName: '',
       lastName: '',
       email: '',
+      phoneNumber: '',
       password: '',
       confirmPassword: ''
     },
@@ -90,6 +93,13 @@ const Register = () => {
           placeholder="Email"
           isLoading={isLoading}
           keyboardType='email-address'
+        />
+        <FormInput
+          control={control}
+          name="phoneNumber"
+          placeholder="Phone number"
+          isLoading={isLoading}
+          keyboardType='numeric'
         />
         <FormInput
           control={control}

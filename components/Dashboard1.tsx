@@ -7,7 +7,7 @@ import ThemeToggle from './ThemeToggle'
 import { Text, View } from './Themed'
 import { AuthContext } from '@/providers/authProvider'
 import { useAppDispatch } from '@/features/store/Hooks'
-import { fetchBalance } from '@/features/slice/balanceSlice'
+import { fetchBalance} from '@/features/slice/balanceSlice'
 import { fetchTransferHistory } from '@/features/slice/statSlice'
 
 

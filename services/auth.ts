@@ -2,7 +2,7 @@ import { createUserWithEmailAndPassword, initializeAuth, signInWithEmailAndPassw
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from "firebase/app";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -34,6 +34,7 @@ type SignUpType = {
   firstName: string
   lastName: string
   email: string
+  phoneNumber: string
   password: string
 }
 
@@ -47,7 +48,7 @@ export const SignIn = async ({ email, password }: SignInType) => {
   }
 };
 
-export const SignUp = async ({ firstName, lastName, email, password }: SignUpType) => {
+export const SignUp = async ({ firstName, lastName, email, phoneNumber, password }: SignUpType) => {
   try {
     const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredentials.user
@@ -56,6 +57,9 @@ export const SignUp = async ({ firstName, lastName, email, password }: SignUpTyp
         displayName: `${firstName} ${lastName}`,
       });
     }
+    await setDoc(doc(firebaseDb, "users", user.uid), {
+      phoneNumber,
+    });
     return user;
   } catch (error) {
     return error;

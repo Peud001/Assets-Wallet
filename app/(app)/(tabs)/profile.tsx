@@ -17,6 +17,8 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { updateProfile } from "firebase/auth";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useAppSelector } from "@/features/store/Hooks";
 
 const Profile = () => {
   const [toggle, setToggle] = useState(false);
@@ -26,6 +28,7 @@ const Profile = () => {
   const [isEnabled, setIsEnabled] = useState(false);
 
   const { user, setUser } = useContext(AuthContext);
+  const phone = useAppSelector(state => state.balance.phoneNumber)
 
   const profileDetails = [
     {
@@ -33,7 +36,7 @@ const Profile = () => {
       title: "Email",
       value: user?.email || "example@gmail.com",
     },
-    { name: "phone", title: "Phone", value: "+22 234 2345" },
+    { name: "phone", title: "Phone", value: phone },
     {
       name: "vest",
       title: "Privacy",
@@ -148,7 +151,7 @@ const Profile = () => {
               </TouchableOpacity>
             </View>
             <Text className="text-lg font-psemibold">{user?.displayName}</Text>
-            <Text className="font-plight">+22 432 4342</Text>
+            <Text className="font-plight">{phone?.slice(1, -1)}</Text>
           </View>
           {/* ---- Part 3---- */}
           <View className="gap-7">
@@ -163,11 +166,11 @@ const Profile = () => {
                     size={20}
                     color='#CDCDE0'
                   />
-                  <Text className="font-bold dark:text-textPrimary">
+                  <Text className="font-psemibold">
                     {item.title}
                   </Text>
                 </View>
-                <Text className="text-gray- dark:text-textPrimary">
+                <Text>
                   {item.value}
                 </Text>
               </View>
@@ -179,7 +182,7 @@ const Profile = () => {
                   size={22}
                   color='#CDCDE0'
                 />
-                <Text className="font-bold dark:text-textPrimary">
+                <Text className="font-psemibold">
                   Notification
                 </Text>
               </View>
@@ -193,6 +196,13 @@ const Profile = () => {
                 />
               </TouchableOpacity>
             </View>
+            <View className="flex-row justify-between items-center">
+              <View className="flex-row gap-5 items-center">
+              <ThemeToggle/>
+              <Text className="font-psemibold">Theme</Text>
+              </View>
+            <ThemeToggle/>
+            </View>
             <TouchableOpacity
               className="flex-row items-center"
               onPress={handleLogout}
@@ -202,7 +212,7 @@ const Profile = () => {
                 size={22}
                 color='#CDCDE0'
               />
-              <Text className="pl-5 font-bold dark:text-textPrimary">
+              <Text className="pl-5 font-bold">
                 Logout
               </Text>
             </TouchableOpacity>
