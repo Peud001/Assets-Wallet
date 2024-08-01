@@ -38,8 +38,6 @@ const Statistics = () => {
   const dispatch = useAppDispatch();
   const allIncome = useAppSelector((state) => state.stat.totalIncome);
   const allExpense = useAppSelector((state) => state.stat.totalExpense);
-  console.log(allIncome)
-  console.log(allExpense)
 
   useEffect(() => {
     if (user) {
@@ -56,8 +54,6 @@ const Statistics = () => {
   const sumIncome = allIncome.reduce((acc, val) => acc + (val.amount || 0), 0);
   const sumExpense = allExpense.reduce((acc, val) => acc + (val.amount || 0), 0);
   const denom = sumIncome + sumExpense;
-  console.log(sumIncome)
-  console.log(sumExpense)
 
   const percentIncome = denom ? (sumIncome * 100) / denom : 0;
   const percentExpense = denom ? (sumExpense * 100) / denom : 0;

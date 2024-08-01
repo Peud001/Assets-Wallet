@@ -19,7 +19,7 @@ const NetworkProviders = ({ handlePress, network }: { handlePress: (name: string
             key={index}
             onPress={() => handlePress(item.name)}
             className="w-[100px] h-[100px] rounded-xl justify-center items-center"
-            style={network === item.image ? { borderRadius: 10, borderWidth: 5, borderColor: '#F79E1B' } : {}}
+            style={network === item.name ? { borderRadius: 10, borderWidth: 5, borderColor: '#F79E1B' } : {}}
           >
             <Image source={item.image} className="w-[80px] h-[80px] rounded-xl" />
           </TouchableOpacity>
