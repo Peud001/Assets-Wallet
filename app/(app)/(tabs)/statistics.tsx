@@ -52,7 +52,7 @@ const Statistics = () => {
   }, [user]);
 
   const sumIncome = allIncome.reduce((acc, val) => acc + (val.amount || 0), 0);
-  const sumExpense = allExpense.reduce((acc, val) => acc + (val.amount || 0), 0);
+  const sumExpense = allExpense.reduce((acc, val) => acc + (parseFloat(val.amount) || 0), 0);
   const denom = sumIncome + sumExpense;
 
   const percentIncome = denom ? (sumIncome * 100) / denom : 0;
@@ -89,7 +89,7 @@ const Statistics = () => {
         />
         <View>
           <Text className="text-2xl font-psemibold mt-10 mb-5 text-center">History</Text>
-            {transferHistory.slice(0, 4).map((item: any, index: number) => (
+            {transferHistory.map((item: any, index: number) => (
               <View
                 key={index}
                 className="flex-row items-center justify-between mb-5"

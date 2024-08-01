@@ -203,7 +203,7 @@ const Data = () => {
         <View className="flex-row items-center px-3 py-7">
           <ArrowBack />
           <View className="w-[86%] items-center">
-            <Text className="font-bold text-3xl">Data</Text>
+            <Text className="font-bold text-3xl"></Text>
           </View>
         </View>
         <Controller
