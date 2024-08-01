@@ -5,10 +5,10 @@ import { View } from "./Themed";
 
 const NetworkProviders = ({ handlePress, network }: { handlePress: (name: string) => void, network: string }) => {
   const data = [
-    { name: images.mtn },
-    { name: images.glo },
-    { name: images.airtel },
-    { name: images.etisalat },
+    { image: images.mtn, name: 'MTN' },
+    { image: images.glo, name: 'GLO' },
+    { image: images.airtel, name: 'AIRTEL' },
+    { image: images.etisalat, name: '9MOBILE' },
   ];
 
   return (
@@ -19,9 +19,9 @@ const NetworkProviders = ({ handlePress, network }: { handlePress: (name: string
             key={index}
             onPress={() => handlePress(item.name)}
             className="w-[100px] h-[100px] rounded-xl justify-center items-center"
-            style={network === item.name ? { borderRadius: 10, borderWidth: 5, borderColor: '#F79E1B' } : {}}
+            style={network === item.image ? { borderRadius: 10, borderWidth: 5, borderColor: '#F79E1B' } : {}}
           >
-            <Image source={item.name} className="w-[80px] h-[80px] rounded-xl" />
+            <Image source={item.image} className="w-[80px] h-[80px] rounded-xl" />
           </TouchableOpacity>
         ))}
       </View>

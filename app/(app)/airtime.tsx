@@ -11,6 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ActivityIndicator } from "react-native";
 import { AuthContext } from "@/providers/authProvider";
 import Toast from "react-native-root-toast";
+import { useAppDispatch, useAppSelector } from "@/features/store/Hooks";
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { firebaseDb } from "@/services/auth";
+import { fetchBalance } from "@/features/slice/balanceSlice";
+import { fetchTransferHistory } from "@/features/slice/statSlice";
+import { Modal } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 
 const formSchema = z.object({
@@ -19,20 +26,26 @@ const formSchema = z.object({
     .min(11, "Phone number is required")
     .max(11, "Phone number must be 11 numbers"),
   amount: z
-    .number()
+    .string()
     .min(1, "Amount is required")
     .max(10000000, "Amount is out of range"),
 });
 
 const Airtime = () => {
 
+  const dispatch = useAppDispatch()
+  const balance = useAppSelector(state => state.balance.balance)
+  const newBalance = balance ? balance.balance : 0;
+
   const {user} = useContext(AuthContext)
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
+  const [network, setNetwork] = useState<string>('')
+  const [amount, setAmount] = useState<string | number>('')
+  const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [showModal, setShowModal] = useState<boolean>(false)
 
   const {colorScheme} = useColorScheme()
-
-  const [network, setNetwork] = useState('')
 
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -46,8 +59,8 @@ const Airtime = () => {
     name===network? '' : setNetwork(name)
   }
 
-  const handlePress = (data: any) => {
-    console.log('name')
+  const handlePress = async(data: any) => {
+    
     if (!user) {
       Toast.show("User is not authenticated.", { duration: Toast.durations.LONG });
       return;
@@ -56,13 +69,100 @@ const Airtime = () => {
       Toast.show("Choose Network.", { duration: Toast.durations.LONG });
       return;
     }
-    const validatedData = formSchema.parse(data);
-    console.log(validatedData)
+    if (network==='') {
+      Toast.show("Choose Network.", { duration: Toast.durations.LONG });
+      return;
+    }
+    if (data.amount > newBalance) {
+      Toast.show("Insufficient balance", { duration: Toast.durations.LONG });
+      return;
+    }
+    setIsSubmitting(true)
+    try {
+      const validatedData = formSchema.parse(data);
+      setAmount(validatedData.amount.toString());
+      setPhoneNumber(validatedData.phoneNumber);
+      await addDoc(collection(firebaseDb, "users", user.uid, "transactions"), {
+        title: `Airtime top-up ${validatedData.phoneNumber}`,
+        amount: `-₦${validatedData.amount}`,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        iconName: "arrow-alt-circle-left",
+        iconColor: "#F57C7C",
+        uid: user.uid,
+        timestamp: serverTimestamp(),
+      });
+      await addDoc(collection(firebaseDb, "allExpense", user.uid, "transactions"), {
+        amount: validatedData.amount,
+      });
+      await setDoc(doc(firebaseDb, "balance", user.uid), {
+        balance: newBalance - parseFloat(validatedData.amount),
+      });
+      dispatch(fetchBalance(user.uid));
+      dispatch(fetchTransferHistory(user.uid));
+      setShowModal(true);
+      reset();
+    } catch (err) {
+      Toast.show("Failed - please try again", { duration: Toast.durations.LONG });
+    } finally {
+      setIsSubmitting(false);
+    }
+
   }
+
+  const closeModal = () => {
+    setShowModal(false);
+    setPhoneNumber("");
+    setAmount("");
+    setNetwork("")
+  };
 
   return (
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false} className="px-3">
+      <Modal animationType="slide" transparent={true} visible={showModal}>
+          <View className="flex-1 justify-center items-center bg-[#00000090]">
+            <View className="bg-white p-5 rounded-lg w-[90%]">
+              <View className="items-center my-5">
+                <Feather name="check-circle" size={50} color="green" />
+                <Text className="mt-5 font-pbold text-xl text-black">
+                  Airtime top-up successful
+                </Text>
+                <Text className="text-[#a0a0a0] font-pregular text-center text-[#333]">
+                  {`Your ${network} line has been credited with ${amount} airtime`}
+                </Text>
+              </View>
+              <View className="flex-row justify-between items-center my-5">
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">
+                  Airtime Amount
+                </Text>
+                <Text className="font-psemibold text-[#333]">
+                  ₦{amount}
+                </Text>
+              </View>
+              <View className="flex-row justify-between items-center mb-5">
+                <Text className="font-plight text-[#333]">Beneficiary</Text>
+                <View className="items-end">
+                  <Text className="text-[#333]">{phoneNumber}</Text>
+                  <Text className="font-pextralight text-[#333]">- {network}</Text>
+                </View>
+              </View>
+              <View className="flex-row items-center justify-between mb-5">
+                <Text className="text-[#a0a0a0] font-plight text-[#333]">
+                  Date & time
+                </Text>
+                <Text className="text-[#333]">{new Date().toLocaleDateString()}</Text>
+              </View>
+              <TouchableOpacity
+                className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mb-5"
+                onPress={closeModal}
+                accessibilityLabel="Close success modal"
+              >
+                <Text className="text-white font-bold">Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <View className="flex-row items-center px-3 py-7">
           <ArrowBack />
           <View className="w-[86%] items-center">
@@ -120,7 +220,7 @@ const Airtime = () => {
             accessibilityLabel="Submit transfer"
           >
             <Text className="font-bold text-white text-xl">
-              {isSubmitting ? <ActivityIndicator size="large" color="#fff" /> : "Send"}
+              {isSubmitting ? <ActivityIndicator size="large" color="#fff" /> : "Continue"}
             </Text>
           </TouchableOpacity>
       </ScrollView>
