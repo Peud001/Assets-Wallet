@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
-import { useColorScheme } from "nativewind";
 import AuthProvider from "@/providers/authProvider";
 import { RootSiblingParent } from 'react-native-root-siblings';
 import "../global.css";
 import { useFonts } from 'expo-font';
+import { useColorScheme } from "nativewind";
 
 SplashScreen.preventAutoHideAsync();
 

@@ -1,6 +1,5 @@
 import React from "react";
 import { Stack } from "expo-router";
-import { apiSlice } from "../../features/slice/apiSlice";
 import { Provider as ReduxProvider } from "react-redux";
 import { store } from "@/features/store/store";
 

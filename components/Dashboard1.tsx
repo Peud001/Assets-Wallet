@@ -9,6 +9,7 @@ import { AuthContext } from '@/providers/authProvider'
 import { useAppDispatch } from '@/features/store/Hooks'
 import { fetchBalance} from '@/features/slice/balanceSlice'
 import { fetchTransferHistory } from '@/features/slice/statSlice'
+import { router } from 'expo-router'
 
 
 const Dashboard1 = () => {
@@ -45,7 +46,7 @@ const Dashboard1 = () => {
           </View>
         <View className='flex-row items-center'>
           <ThemeToggle/>
-        <TouchableOpacity className='pl-5'>
+        <TouchableOpacity className='relative pl-5' onPress={() => router.push('/notification')}>
         <Feather name='bell' size={26} color={`${colorScheme==='light'? '#333' : '#c0c0c0'}`}/>
         </TouchableOpacity>
         </View>

@@ -24,6 +24,7 @@ import { Controller, useForm } from "react-hook-form";
 import { TextInput } from "react-native";
 import { AuthContext } from "@/providers/authProvider";
 import { fetchTransferHistory } from "@/features/slice/statSlice";
+import Success from "@/components/Success";
 
 const formSchema = z.object({
   accountNumber: z
@@ -134,47 +135,17 @@ const SendMoney = () => {
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Modal animationType="slide" transparent={true} visible={showModal}>
-          <View className="flex-1 justify-center items-center bg-[#00000090]">
-            <View className="bg-white p-5 rounded-lg w-[90%]">
-              <View className="items-center my-5">
-                <Feather name="check-circle" size={50} color="green" />
-                <Text className="mt-5 font-pbold text-xl text-black">
-                  Transfer Successful
-                </Text>
-                <Text className="text-[#a0a0a0] font-pregular text-center text-[#333]">
-                  Your money has been transferred successfully
-                </Text>
-              </View>
-              <View className="flex-row justify-between items-center my-5">
-                <Text className="text-[#a0a0a0] font-plight text-[#333]">
-                  Transfer Amount
-                </Text>
-                <Text className="font-psemibold text-[#333]">
-                  ₦{parseFloat(amount).toFixed(2)}
-                </Text>
-              </View>
-              <View className="flex-row justify-between items-center mb-5">
-                <Text className="font-plight text-[#333]">Beneficiary</Text>
-                <View className="items-end">
-                  <Text className="text-[#333]">{beneficiaryAccount}</Text>
-                  <Text className="font-pextralight text-[#333]">- {selectedBank}</Text>
-                </View>
-              </View>
-              <View className="flex-row items-center justify-between mb-5">
-                <Text className="text-[#a0a0a0] font-plight text-[#333]">
-                  Date & time
-                </Text>
-                <Text className="text-[#333]">{new Date().toLocaleDateString()}</Text>
-              </View>
-              <TouchableOpacity
-                className="h-[50px] rounded-2xl items-center justify-center bg-[#3155E9] mb-5"
-                onPress={closeModal}
-                accessibilityLabel="Close success modal"
-              >
-                <Text className="text-white font-bold">Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+         <Success 
+         title={'Transfer Successful'}
+         subTitle={'Your money has been transferred successfully'}
+         item1={'Transfer Amount'}
+         item1Value={`₦${parseFloat(amount).toFixed(2)}`}
+         item2={'Beneficiary'}
+         item2Value={beneficiaryAccount}
+         item3={' Date & time'}
+         item3Value={`${new Date().toLocaleDateString()} - ${new Date().toLocaleTimeString()}`}
+         closeModal={closeModal}
+         />
         </Modal>
         <View className="px-3">
           <View className="flex-row align-center px-3 my-10">

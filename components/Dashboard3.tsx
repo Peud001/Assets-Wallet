@@ -1,13 +1,10 @@
-import { TouchableOpacity, Image, ScrollView } from "react-native";
+import { TouchableOpacity, Image} from "react-native";
 import React, { useContext, useEffect } from "react";
 import {
-  Feather,
-  FontAwesome6,
-  Fontisto,
-  MaterialIcons,
+  FontAwesome6
 } from "@expo/vector-icons";
 import images from "../constants/images";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { Text, View } from "./Themed";
 import { useColorScheme } from "nativewind";
 import UtilityCard from "./utilityCard";
@@ -23,7 +20,6 @@ import { fetchTransactions } from "@/app/(app)/(tabs)/statistics";
 
 const Dashboard3 = () => {
   const { user } = useContext(AuthContext);
-  console.log(user);
 
   const dispatch = useAppDispatch();
 
@@ -109,8 +105,8 @@ const Dashboard3 = () => {
                 <Text
                   className={`text-lg font-psemibold text-xl ${
                     item.title === "Added to wallet"
-                      ? "text-green-700"
-                      : "text-red-600"
+                      ? "text-green-600"
+                      : "text-[#F57C7C]"
                   }`}
                 >
                   {item.amount}

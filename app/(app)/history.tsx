@@ -49,7 +49,7 @@ const history = () => {
                       <Text>{item.date} - {item.time}</Text>
                     </View>
                   </View>
-                  <Text  className={`text-lg font-psemibold text-xl ${item.title === "Added to wallet" ? 'text-green-700' : 'text-red-600'}`}>{item.amount}</Text>
+                  <Text  className={`text-lg font-psemibold text-xl ${item.title === "Added to wallet" ? 'text-green-600' : 'text-[#F57C7C]'}`}>{item.amount}</Text>
                 </View>
               ))}
             </View>

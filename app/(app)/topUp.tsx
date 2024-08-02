@@ -57,7 +57,7 @@ const TopUp = () => {
       date: new Date().toISOString().split('T')[0], 
       time: new Date().toLocaleTimeString(),
       iconName: "arrow-alt-circle-right",
-      iconColor: "green",
+      iconColor: "#43A047",
       uid: user.uid,
       timestamp: serverTimestamp(),
     };

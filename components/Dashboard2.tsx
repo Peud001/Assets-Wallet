@@ -2,9 +2,8 @@ import { Image, View, Text } from 'react-native'
 import { useContext, useEffect } from 'react'
 import images from '@/constants/images'
 import { useAppDispatch, useAppSelector } from '@/features/store/Hooks'
-import { BalanceType, fetchBalance, fetchPhoneNumber } from '@/features/slice/balanceSlice'
+import { fetchPhoneNumber } from '@/features/slice/balanceSlice'
 import { AuthContext } from '@/providers/authProvider'
-import { fetchTransferHistory } from '@/features/slice/statSlice'
 
 
 const Dashboard2 = () => {

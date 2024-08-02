@@ -5,12 +5,12 @@ import auth from "@/services/auth";
 
 type AuthContextType = {
   user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>; // Add setUser type
+  setUser: React.Dispatch<React.SetStateAction<User | null>>; 
 };
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
-  setUser: () => {}, // Add setUser initial value
+  setUser: () => {}, 
 });
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
